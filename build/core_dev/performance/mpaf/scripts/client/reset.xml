@@ -1,0 +1,240 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Apache Ant's build file for MPAF kpi tests
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="reset" default="all">
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+    <description>Resets services between jmeter test runs</description>
+    <property file="build.properties" />
+
+    <target name="init">
+        <condition property="solr.enabled">
+            <and>
+                <equals arg1="${solr.indicator}" arg2="1"/>
+            </and>
+        </condition>
+    </target>
+
+    <target name="all" depends="reset-db, reset-redis, reset-solr, reset-httpd"/>
+
+    <target name="bamboo" depends="reset-db, reset-redis, reset-solr-dataonly, reset-httpd"/>
+
+    <!-- Reload and Restart the database -->
+    <target name="reset-db">
+        <if>
+            <not>
+                <isset property="mysql02.host"/>
+            </not>
+            <then>
+                <sshexec host="${mysql.host}"
+                         trust="yes"
+                         username="${mysql.user}"
+                         keyfile="${keyfile}"
+                         command="mysql -uroot -p${mysql.root.password} &lt; ${remote.automation.home}/scripts/install/create-magento-db.sql ; zcat ${remote.working.dir}/dataset/${test.data.profile}.${commit.ce}.${commit.ee}.full.sql.gz | mysql -uroot -p${mysql.root.password} -D magento"/>
+            </then>
+        </if>
+        <if>
+            <isset property="mysql02.host"/>
+            <then>
+                <sshexec host="${mysql.host}"
+                         trust="yes"
+                         username="${mysql.user}"
+                         keyfile="${keyfile}"
+                         command="mysql -uroot -p${mysql.root.password} &lt; ${remote.automation.home}/scripts/install/create-magento-db.sql ; zcat ${remote.working.dir}/dataset/${test.data.profile}.${commit.ce}.${commit.ee}.part.sql.gz | mysql -uroot -p${mysql.root.password} -D magento"/>
+                <sshexec host="${mysql02.host}"
+                         trust="yes"
+                         username="${mysql.user}"
+                         keyfile="${keyfile}"
+                         command="mysql -uroot -p${mysql.root.password} &lt; ${remote.automation.home}/scripts/install/create-magento-db.sql ; zcat ${remote.working.dir}/dataset/${test.data.profile}.${commit.ce}.${commit.ee}.sql.gz | mysql -uroot -p${mysql.root.password} -D magento"/>
+                <sshexec host="${mysql02.host}"
+                         trust="yes"
+                         username="${mysql.user}"
+                         keyfile="${keyfile}"
+                         command="service mysql restart"
+                         failonerror="false" />
+                <sshexec host="${mysql02.host}"
+                         trust="yes"
+                         username="${mysql.user}"
+                         keyfile="${keyfile}"
+                         command="service mysqld restart"
+                         failonerror="false" />
+            </then>
+        </if>
+        <sshexec host="${mysql.host}"
+                 trust="yes"
+                 username="${mysql.user}"
+                 keyfile="${keyfile}"
+                 command="service mysql restart"
+                 failonerror="false" />
+        <sshexec host="${mysql.host}"
+                 trust="yes"
+                 username="${mysql.user}"
+                 keyfile="${keyfile}"
+                 command="service mysqld restart"
+                 failonerror="false" />
+    </target>
+
+    <target name="reset-redis">
+        <antcall target="reset-redis-1"/>
+        <antcall target="reset-redis-2"/>
+    </target>
+
+    <!-- Restart Cache Server 1 -->
+    <target name="reset-redis-1" if="redis.host">
+        <sshexec host="${redis.host}"
+                 trust="yes"
+                 username="${redis.user}"
+                 keyfile="${keyfile}"
+                 command="service redis-1 stop"/>
+        <sshexec host="${redis.host}"
+                 trust="yes"
+                 username="${redis.user}"
+                 keyfile="${keyfile}"
+                 command="rm -f /var/lib/redis-1/dump.rdb"/>
+        <sshexec host="${redis.host}"
+                 trust="yes"
+                 username="${redis.user}"
+                 keyfile="${keyfile}"
+                 command="service redis-1 start"/>
+    </target>
+
+    <!-- Restart Cache Server 2 -->
+    <target name="reset-redis-2" if="redis.host">
+        <sshexec host="${redis.host}"
+                 trust="yes"
+                 username="${redis.user}"
+                 keyfile="${keyfile}"
+                 command="service redis-2 stop"/>
+        <sshexec host="${redis.host}"
+                 trust="yes"
+                 username="${redis.user}"
+                 keyfile="${keyfile}"
+                 command="rm -f /var/lib/redis-2/dump.rdb"/>
+        <sshexec host="${redis.host}"
+                 trust="yes"
+                 username="${redis.user}"
+                 keyfile="${keyfile}"
+                 command="service redis-2 start"/>
+    </target>
+
+    <!-- Restart Solr Server -->
+    <target name="reset-solr" if="solr.host" depends="init" >
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="service ${solr.install} stop"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="rm -rf ${solr.dir}"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="tar -xzvf /opt/apache-solr*.tgz --directory=/opt"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="mv /opt/apache-solr-3.6.2 /opt/${solr.install}"/>
+        <mkdir dir="${local.working.dir}/solr-conf"/>
+        <antcall target="copy-M2-solr-files"/>
+        <scp todir="${solr.user}@${solr.host}:${solr.dir}/example/solr/conf/" trust="yes" keyfile="${keyfile}">
+            <fileset dir="${local.working.dir}/solr-conf/">
+                <include name="*"/>
+            </fileset>
+        </scp>
+        <delete dir="${local.working.dir}/solr-conf"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="service ${solr.install} start"
+                 timeout="30000"
+                 failonerror="false"/>
+    </target>
+
+    <target name="reset-solr-dataonly" if="solr.host" depends="init" >
+
+        <echo message="Finding number of records in Solr before cleanup"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="curl -s &quot;http://${solr.host}:8983/solr/select?q=*&amp;fl=id&amp;rows=1&quot; | xmllint --format - | grep numFound"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="curl -s &quot;http://${solr.host}:8983/solr/update?stream.body=&lt;delete&gt;&lt;query&gt;*:*&lt;/query&gt;&lt;/delete&gt;&amp;commit=true&quot;"/>
+        <echo message="Finding number of records in Solr after cleanup"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="curl -s &quot;http://${solr.host}:8983/solr/select?q=*&amp;fl=id&amp;rows=1&quot; | xmllint --format - | grep numFound"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="curl -s &quot;http://${solr.host}:8983/solr/update?stream.body=&lt;optimize/&gt;&amp;commit=true&quot;"/>
+    </target>
+
+    <target name="reset-varnish" if="varnish.host">
+        <sshexec host="${varnish.host}"
+                 trust="yes"
+                 username="${varnish.user}"
+                 keyfile="${keyfile}"
+                 command="service varnish restart"
+                 failonerror="false"/>
+    </target>
+
+    <target name="copy-M2-solr-files">
+        <echo>Bringing down M2 Solr files</echo>
+        <scp file="${webnode.user}@${webnode.host}:${web.ee.dir}/lib/internal/Apache/Solr/conf/*" todir="${local.working.dir}/solr-conf" trust="yes"  keyfile="${keyfile}"/>
+    </target>
+
+    <!-- Restart PHP-FPM -->
+    <target name="reset-httpd" >
+        <if>
+            <isset property="balancer.host"/>
+            <then>
+                <sshexec host="${webnode.host}"
+                         trust="yes"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         command="service php-fpm restart"/>
+                <sshexec host="${webnode02.host}"
+                         trust="yes"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         command="service php-fpm restart"/>
+                <sshexec host="${webnode03.host}"
+                         trust="yes"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         command="service php-fpm restart"/>
+                <sshexec host="${webnode04.host}"
+                         trust="yes"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         command="service php-fpm restart"/>
+            </then>
+            <else>
+                <sshexec host="${webnode.host}"
+                         trust="yes"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         command="service php-fpm restart; service nginx restart"/>
+            </else>
+        </if>
+    </target>
+
+</project>

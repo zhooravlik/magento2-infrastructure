@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Ant build configuration for installing Magento using composer create_project rather than SVN
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="Composer create project" basedir="../../../" default="deploy_ce_packages">
+    <import file="../unit/build.xml"/>
+
+    <property name="composer_additional_options" value="--no-plugins"/>
+    <property name="target_packages_dir" value="${basedir}/_packages"/>
+    <property name="target_project_dir" value="${basedir}/project"/>
+    <property name="packages_user" value="deploy"/>
+    <property name="packages_keyfile" value="/opt/bamboo/.ssh/packages.magento.com.pem"/>
+    <property name="packages_user_home" value="/home/${packages_user}"/>
+    <property name="packages_satishome" value="${packages_user_home}/satis"/>
+    <property name="composer_create_project_repository_url" value="${env.bamboo_composer_create_project_repository_url}${env.plankey}"/>
+    <property name="temp_composer_repository_url" value="${env.bamboo_composer_repository_url}"/>
+    <condition property="composer_repository_url" value="${temp_composer_repository_url}">
+        <not>
+            <equals arg1="${temp_composer_repository_url}" arg2="" />
+        </not>
+    </condition>
+    <property name="composer_repository_url" value="${env.bamboo_composer_create_project_repository_url}${env.plankey}" />
+    <property name="packages_home" value="${env.bamboo_packages_home}${env.plankey}"/>
+    <property name="satis_json_filename" value="satis_${env.plankey}.json"/>
+
+    <target name="prepare_satis_server" description="Prepare satis server">
+        <fail message="Bamboo variable 'target_packages_host' must be defined.">
+            <condition><equals arg1="${env.bamboo_target_packages_host}" arg2="" trim="true"/></condition>
+        </fail>
+        <!-- Create the custom /var/www/Satis directory and satis_x.json file for this run -->
+        <sshexec host="${env.bamboo_target_packages_host}"
+                 username="${packages_user}"
+                 keyfile="${packages_keyfile}"
+                 trust="yes"
+                 command="cd ${packages_user_home}; ./custom-satis-index.sh ${env.plankey};" />
+    </target>
+
+    <target name="deploy_ce_packages" depends="_verify_publish_parameters, _server_info, _composer_install" description="Deploy CE packages to sandbox packages server">
+        <!-- Validate ce publication specific parameters -->
+        <fail message="Bamboo variable 'source_dir' must be defined.">
+            <condition><equals arg1="${env.source_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Bamboo variable 'target_product_repository' must be defined.">
+            <condition><equals arg1="${env.bamboo_target_project_repository}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Property 'target_project_dir' must be defined.">
+            <condition><equals arg1="${target_project_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <echo message="Deploy CE packages for '${composer_repository_url}'"/>
+        <exec executable="curl" failonerror="true">
+            <arg value="-L" />
+            <arg value="-H" />
+            <arg value="Authorization: token ${env.bamboo_git_oauth_token}" />
+            <arg value="${env.bamboo_magento2_composer_archive_url}" />
+            <arg value="-o" />
+            <arg value="${target_packages_dir}/${env.bamboo_magento2_composer_archive}.zip" />
+            <arg value="-v" />
+        </exec>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/build/publication/prepare_sandboxpackages.php --
+                --source-dir=${env.source_dir}
+                --target-packages-dir=${target_packages_dir}
+                --target-project-dir=${target_project_dir}
+                --updater-repo=${env.bamboo_m2updater_repo}
+                --updater-branch=${env.bamboo_m2updater_branch}
+                --composer-project-repository-url=${composer_repository_url}
+                "/>
+        </exec>
+        <antcall target="_update_packages_server" />
+    </target>
+
+    <target name="deploy_ee_packages" depends="_verify_publish_parameters, _server_info, _composer_install" description="Deploy EE packages to sandbox packages server">
+        <!-- Validate ee publication specific parameters -->
+        <fail message="Bamboo variable 'source_dir' must be defined.">
+            <condition><equals arg1="${env.source_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Bamboo variable 'target_product_repository' must be defined.">
+            <condition><equals arg1="${env.bamboo_target_project_repository}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Property 'target_project_dir' must be defined.">
+            <condition><equals arg1="${target_project_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <echo message="Deploy EE packages for '${composer_repository_url}'"/>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/build/publication/prepare_sandboxpackages.php --
+                --source-dir=${env.source_dir}
+                --target-packages-repo=${composer_create_project_repository_url}
+                --target-packages-dir=${target_packages_dir}
+                --target-project-dir=${target_project_dir}
+                --edition=ee
+                --composer-project-repository-url=${composer_repository_url}
+                "/>
+        </exec>
+        <antcall target="_update_packages_server" />
+    </target>
+
+    <target name="deploy_ce_sample_data_packages" depends="_verify_publish_parameters, _server_info" description="Deploy CE Sample Data packages to sandbox packages server">
+        <fail message="Bamboo variable 'bamboo_m2sampledata_ce_repo' must be defined.">
+            <condition><equals arg1="${env.bamboo_m2sampledata_ce_repo}" arg2="" trim="true"/></condition>
+        </fail>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/build/publication/sample_data.php --
+                --edition=ce
+                --ce-repo=${env.bamboo_m2sampledata_ce_repo}
+                --ce-branch=${env.bamboo_m2sampledata_ce_branch}
+                --target-packages-dir=${target_packages_dir}
+                "/>
+        </exec>
+        <antcall target="_update_packages_server" />
+    </target>
+<target name="deploy_ee_sample_data_packages" depends="_verify_publish_parameters, _server_info" description="Deploy EE Sample Data packages to sandbox packages server">
+        <fail message="Bamboo variable 'bamboo_m2sampledata_ce_repo' must be defined.">
+            <condition><equals arg1="${env.bamboo_m2sampledata_ce_repo}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Bamboo variable 'bamboo_m2sampledata_ee_repo' must be defined.">
+            <condition><equals arg1="${env.bamboo_m2sampledata_ee_repo}" arg2="" trim="true"/></condition>
+        </fail>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/build/publication/sample_data.php --
+                --edition=ee
+                --ce-repo=${env.bamboo_m2sampledata_ce_repo}
+                --ce-branch=${env.bamboo_m2sampledata_ce_branch}
+                --ee-repo=${env.bamboo_m2sampledata_ee_repo}
+                --ee-branch=${env.bamboo_m2sampledata_ee_branch}
+                --target-packages-dir=${target_packages_dir}
+                "/>
+        </exec>
+        <antcall target="_update_packages_server" />
+    </target>
+    <target name="composer_create_project" if="env.COMPOSER_HOME">
+        <fail message="Bamboo variable 'target_product_repository' must be defined.">
+            <condition><equals arg1="${env.bamboo_target_project_repository_url}" arg2="" trim="true"/></condition>
+        </fail>
+        <echo message="Run 'composer create-project for repository-url '${composer_create_project_repository_url}'"/>
+        <exec executable="/usr/local/bin/composer" failonerror="true">
+            <env key="COMPOSER_PROCESS_TIMEOUT" value="600"/>
+            <arg line="create-project ${env.bamboo_composer_project_community_edition} ${basedir}/../${env.bamboo_m2ce_checkout_directory} --repository-url='${composer_create_project_repository_url}' -vvv"/>
+        </exec>
+        <exec executable="/usr/local/bin/composer" dir="${basedir}/../${env.bamboo_m2ce_checkout_directory}/update" failonerror="true">
+            <env key="COMPOSER_PROCESS_TIMEOUT" value="600"/>
+            <arg line="install"/>
+        </exec>
+    </target>
+
+    <target name="composer_create_ee_project" if="env.COMPOSER_HOME">
+        <fail message="Bamboo variable 'target_product_repository' must be defined.">
+            <condition><equals arg1="${env.bamboo_target_project_repository_url}" arg2="" trim="true"/></condition>
+        </fail>
+        <echo message="Run 'composer create-project for repository-url '${composer_create_project_repository_url}'"/>
+        <exec executable="/usr/local/bin/composer" failonerror="true">
+            <env key="COMPOSER_PROCESS_TIMEOUT" value="600"/>
+            <arg line="create-project ${env.bamboo_composer_project_ee} ${basedir}/../${env.bamboo_m2ce_checkout_directory} --stability='beta' --repository-url='${composer_create_project_repository_url}' -vvv"/>
+        </exec>
+        <exec executable="/usr/local/bin/composer" dir="${basedir}/../${env.bamboo_m2ce_checkout_directory}/update" failonerror="true">
+            <env key="COMPOSER_PROCESS_TIMEOUT" value="600"/>
+            <arg line="install"/>
+        </exec>
+    </target>
+
+    <target name="compress_composer_archives" description="Compress composer archives">
+        <fail message="Bamboo variable 'target_packages_host' must be defined.">
+            <condition><equals arg1="${env.bamboo_target_packages_host}" arg2="" trim="true"/></condition>
+        </fail>
+        <!-- Create the compressed file and move it to a common location -->
+        <sshexec host="${env.bamboo_target_packages_host}"
+                 username="${packages_user}"
+                 keyfile="${packages_keyfile}"
+                 trust="yes"
+                 command="cd ${packages_user_home}; ./compress-composer-archives.sh ${env.plankey} ${env.compress_filename};" />
+    </target>
+
+    <target name="compress_source_archives" description="Compress source archives">
+        <fail message="Bamboo variable 'target_packages_host' must be defined.">
+            <condition><equals arg1="${env.bamboo_target_packages_host}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Bamboo variable 'compress_filename' must be defined.">
+            <condition><equals arg1="${{env.compress_filename}" arg2="" trim="true"/></condition>
+        </fail>
+        <!-- Zip the source -->
+        <zip destfile="${basedir}/${env.compress_filename}.zip"
+             basedir="${basedir}/../${env.bamboo_m2ce_checkout_directory}" />
+        <!-- Copy zip to packages server -->
+        <scp file="${basedir}/${env.compress_filename}.zip"
+             todir="${packages_user}@${env.bamboo_target_packages_host}:${packages_home}"
+             trust="yes"
+             keyfile="${packages_keyfile}"/>
+    </target>
+
+    <target name="_update_packages_server" description="Copy new archives to packages server">
+        <!-- Copy new archive files to packages server -->
+        <exec executable="rsync" dir="." failonerror="true">
+            <arg value="-r"/>
+            <arg value="-v"/>
+            <arg value="--rsh=ssh -i ${packages_keyfile}"/>
+            <arg value="${target_packages_dir}"/>
+            <arg value="${packages_user}@${env.bamboo_target_packages_host}:${packages_home}"/>
+        </exec>
+        <!-- Re-build Satis index -->
+        <sshexec host="${env.bamboo_target_packages_host}"
+                 username="${packages_user}"
+                 keyfile="${packages_keyfile}"
+                 trust="yes"
+                 command="php ${packages_satishome}/bin/satis build ${packages_satishome}/${satis_json_filename} ${packages_home}" />
+        <!-- Fix dist url in packages include json file and sync with redundant packages server -->
+        <sshexec host="${env.bamboo_target_packages_host}"
+                 username="${packages_user}"
+                 keyfile="${packages_keyfile}"
+                 trust="yes"
+                 command="cd ${packages_user_home}; ./satis-fix.sh ${packages_home}; ./rsync-ha.sh" />
+    </target>
+
+    <target name="_verify_publish_parameters" description="Verify publication parameters">
+        <!-- Valid all parameters that are required to communicate with the packages server -->
+        <fail message="Bamboo variable 'target_packages_host' must be defined.">
+            <condition><equals arg1="${env.bamboo_target_packages_host}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Property 'target_packages_dir' must be defined.">
+            <condition><equals arg1="${target_packages_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Property 'packages_home' must be defined.">
+            <condition><equals arg1="${packages_home}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Property 'satis_json_filename' must be defined.">
+            <condition><equals arg1="${satis_json_filename}" arg2="" trim="true"/></condition>
+        </fail>
+        <mkdir dir="${target_packages_dir}"/>
+    </target>
+</project>

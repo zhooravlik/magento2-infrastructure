@@ -1,0 +1,1244 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Apache Ant's install file for MPAF kpi tests
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="install" default="all">
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+    <description>
+    </description>
+
+    <property environment="env"/>
+    <property file="install.properties" />
+
+    <!-- Necessary so that git files are not excluded. -->
+    <defaultexcludes remove="**/.git/**"/>
+
+    <target name="init">
+        <tstamp>
+            <format property="current.time" pattern="yyyyMMdd_HHmmss"/>
+        </tstamp>
+        <!-- create unique identifier for this install run -->
+        <property name="test.datetime" value="${current.time}"/>
+        <!-- create unique identifier for use in jmeter targets -->
+        <!-- bamboo dynamically generates test.identifier -->
+        <property name="jmeter.test.directory" value="${remote.working.dir}/install-${env.test.identifier}-${test.datetime}"/>
+        <property name="mpaf_root_infra_dir" location="${local.automation.home}/magento2infra/build/core_dev/performance/mpaf"/>
+        <mkdir dir="${mpaf_root_infra_dir}/working"/>
+        <property name="local_working_dir" location="${mpaf_root_infra_dir}/working"/>
+
+    </target>
+
+    <target name="all" depends="init"/>
+
+    <target name="checkout-magento2" depends="init" description="Copy source code to the webnode">
+        <antcall target="_remote-remove-old-source">
+            <param name="source_dir" value="${web.ce.dir}"/>
+        </antcall>
+        <antcall target="_remote-remove-old-source">
+            <param name="source_dir" value="${web.ee.dir}"/>
+        </antcall>
+        <antcall target="_remote-remove-old-source">
+            <param name="source_dir" value="${web.infra.dir}"/>
+        </antcall>
+        <antcall target="_remote-redis-remove-old-cache"/>
+        <antcall target="_remote-cleanup-shared-static"/>
+        <antcall target="_remote-scp-git-checkout"/>
+        <!-- Copy out DeploymentEvent.php file used to flag build events -->
+        <scp file="${mpaf_root_infra_dir}/scripts/jmeter/DeploymentEvent.php"
+             todir="${webnode.user}@${webnode.host}:${web.ce.dir}"
+             trust="yes"
+             keyfile="${keyfile}"/>
+        <antcall target="_copy-mpaf"/>
+    </target>
+
+    <target name="_remote-remove-old-source" description="Remove existing ${source_dir} source">
+        <echo message="Removing ${source_dir} directory"/>
+        <echo message="logging into ${webnode.host} with user ${webnode.user}"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="rm -rf ${source_dir}; exit 0"/>
+    </target>
+
+    <target name="_remote-cleanup-shared-static" description="Remove existing static" if="balancer.host">
+        <echo message="Removing /mnt/static/ directory"/>
+        <if>
+            <isset property="redis.host"/>
+            <then>
+
+                <sshexec host="${redis.host}"
+                         username="${redis.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="rm -rf /mnt/static/*; exit 0"/>
+            </then>
+        </if>
+    </target>
+
+    <target name="_remote-redis-remove-old-cache" description="Remove existing cache">
+        <echo message="Flushing redis cache and var/*"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; rm -rf var/di; rm -rf var/generation"/>
+        <if>
+            <isset property="redis.host"/>
+            <then>
+
+                <sshexec host="${redis.host}"
+                         username="${redis.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="redis-cli -h ${redis.host} -p ${redis.port} flushall"/>
+                <sshexec host="${redis.session.host}"
+                         username="${redis.session.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="redis-cli -h ${redis.session.host} -p ${redis.session.port} flushall"/>
+            </then>
+        </if>
+    </target>
+
+    <target name="_remote-scp-git-checkout" description="Copy source to remote web server; Checkout specific git commit">
+        <antcall target="_remote-switch-tmpfs">
+            <param name="host" value="${webnode.host}"/>
+            <param name="user" value="${webnode.user}"/>
+        </antcall>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="mkdir ${web.ce.dir}; mkdir ${web.ee.dir}; mkdir ${web.infra.dir};"/>
+        <scp todir="${webnode.user}:@${webnode.host}:${web.ce.dir}" trust="yes" keyfile="${keyfile}">
+            <fileset dir="magento2ce">
+                <include name="**"/>
+            </fileset>
+        </scp>
+        <scp todir="${webnode.user}:@${webnode.host}:${web.ee.dir}" trust="yes" keyfile="${keyfile}">
+            <fileset dir="magento2ee">
+                <include name="**"/>
+            </fileset>
+        </scp>
+        <scp todir="${webnode.user}:@${webnode.host}:${web.infra.dir}" trust="yes" keyfile="${keyfile}">
+            <fileset dir="magento2infra">
+                <include name="**"/>
+            </fileset>
+        </scp>
+        <echo message="Checking out magento2ce commit: ${commit.ce}"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; git reset --hard HEAD; git checkout ${commit.ce};"/>
+        <echo message="Checking out magento2ee commit: ${commit.ee}"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ee.dir}; git reset --hard HEAD; git checkout ${commit.ee};"/>
+        <echo message="Checking out infrastructure commit: ${commit.infra}"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.infra.dir}; git reset --hard HEAD; git checkout ${commit.infra};"/>
+        <echo message="Setting magento2ce file permissions"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; chmod -Rf 777 app/etc/ var pub;"/>
+        <echo message="Setting magento2ee file permissions"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ee.dir}; chmod -Rf 777 app/etc/ pub;"/>
+        <echo message="Copying magento2ee to magento2ce"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="yes|cp -r ${web.ee.dir}/* ${web.ce.dir};"/>
+        <echo message="Copying magento2infra to magento2ce"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="yes|cp -r ${web.infra.dir}/* ${web.ce.dir}/dev;"/>
+        <echo message="Running composer" />
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; /usr/local/bin/composer install --working-dir ${web.ce.dir}/dev --no-plugins"/>
+        <echo message="Removing magento2ce gitignore"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="rm -f ${web.ce.dir}/dev/tests/functional/.gitignore"/>
+    </target>
+
+
+    <!-- =================================== -->
+    <!-- Magento app install related targets -->
+    <!-- =================================== -->
+
+    <target name="prep-install" depends="init" description="Prepare for installation">
+        <echo message="Performing composer install for magento2 dependencies"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; /usr/local/bin/composer install"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; /usr/local/bin/composer update"/>
+        <echo message="Restarting PHP-FPM service"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="service php-fpm restart"/>
+    </target>
+
+    <target name="install" depends="init">
+        <!-- Run extruder.  Needed for single tenant compiler. -->
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; php -f dev/build/publication/edition.php -- --dir='${web.ce.dir}' --edition='ee' --internal" />
+
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; rm -rf ./app/code/Magento/*/Test/; rm -rf ./lib/internal/Magento/Framework/*/Test/;" />
+        <if>
+            <isset property="balancer.host"/>
+            <then>
+                <sshexec host="${webnode.host}"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="cd ${web.ce.dir}; php -f ${web.ce.dir}/bin/magento setup:install
+                            --timezone='${timezone}' --currency='${currency}'
+                            --db-host='${db-host}' --db-name='${db-name}' --db-user='${db-user}' --db-password='${db-pass}'
+                            --base-url='${url}' --use-rewrites='${rewrites}' --cleanup-database
+                            --session-save='db' --backend-frontname='backend'
+                            --use-secure='${secure}' --base-url-secure='${secure-url}' --use-secure-admin='${secure-admin}'
+                            --admin-lastname='${admin-lastname}' --admin-firstname='${admin-firstname}' --admin-email='${admin-email}'
+                            --admin-user='${admin-user}' --admin-password='${admin-password}' --http-cache-hosts='10.109.31.236'
+                            --key='${encryption-key}' --admin-use-security-key=0 --magento-init-params='MAGE_MODE=production'"/>
+            </then>
+            <else>
+                <sshexec host="${webnode.host}"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="cd ${web.ce.dir}; php -f ${web.ce.dir}/bin/magento setup:install
+                            --timezone='${timezone}' --currency='${currency}'
+                            --db-host='${db-host}' --db-name='${db-name}' --db-user='${db-user}' --db-password='${db-pass}'
+                            --base-url='${url}' --use-rewrites='${rewrites}' --cleanup-database
+                            --session-save='db' --backend-frontname='backend'
+                            --use-secure='${secure}' --base-url-secure='${secure-url}' --use-secure-admin='${secure-admin}'
+                            --admin-lastname='${admin-lastname}' --admin-firstname='${admin-firstname}' --admin-email='${admin-email}'
+                            --admin-user='${admin-user}' --admin-password='${admin-password}' --http-cache-hosts='10.109.116.151'
+                            --key='${encryption-key}' --admin-use-security-key=0 --magento-init-params='MAGE_MODE=production'"/>
+            </else>
+        </if>
+        <antcall target="set-config-file-permissions">
+                <param name="host" value="${webnode.host}"/>
+        </antcall>
+        <antcall target="_remote-redis-remove-old-cache"/>
+    </target>
+
+    <target name="set-config-file-permissions" >
+        <echo message="Changing file ownership to apache user"/>
+        <if>
+            <and>
+            <isset property="balancer.host"/>
+                <not>
+                    <equals arg1="${balancer.host}" arg2="${host}"/>
+                </not>
+            </and>
+            <then>
+                <sshexec host="${host}"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="chown -R apache:apache ${web.ce.dir}/* "/>
+            </then>
+            <else>
+                <sshexec host="${host}"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="chown -R nginx:nginx ${web.ce.dir}/* "/>
+            </else>
+        </if>
+    </target>
+
+    <target name="set-production-mode">
+        <!-- echo out new line before MAGE_MODE setting to always ensure SetEnv is on a new line -->
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="echo '' >> ${web.ce.dir}/.htaccess;echo 'SetEnv MAGE_MODE production' >> ${web.ce.dir}/.htaccess"/>
+    </target>
+
+    <target name="single-tenant-compiler" >
+        <!-- This must be run after all tools have run, since this compiler affects app/code and lib/internal/Magento classes. -->
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; php -f ${install.php.dir} setup:di:compile"/>
+        <antcall target="set-config-file-permissions">
+            <param name="host" value="${webnode.host}"/>
+        </antcall>
+    </target>
+
+    <target name="app-settings" depends="varnish-settings-load">
+        <antcall target="clear-magento-var"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="
+                sed -i &quot;s#%merge_css%#${env.merge_css}#&quot; ${remote.automation.home}/scripts/install/magento/config/profiles/base_config.xml &amp;&amp;
+                sed -i &quot;s#%minify_css%#${env.minify_css}#&quot; ${remote.automation.home}/scripts/install/magento/config/profiles/base_config.xml &amp;&amp;
+                sed -i &quot;s#%merge_js%#${env.merge_js}#&quot; ${remote.automation.home}/scripts/install/magento/config/profiles/base_config.xml &amp;&amp;
+                sed -i &quot;s#%minify_js%#${env.minify_js}#&quot; ${remote.automation.home}/scripts/install/magento/config/profiles/base_config.xml &amp;&amp;
+                sed -i &quot;s#%js_bundling%#${env.js_bundling}#&quot; ${remote.automation.home}/scripts/install/magento/config/profiles/base_config.xml &amp;&amp;
+                sed -i &quot;s#%async_indexing%#${env.async_indexing}#&quot; ${remote.automation.home}/scripts/install/magento/config/profiles/base_config.xml &amp;&amp;
+                sed -i &quot;s#%async_sending%#${env.async_sending}#&quot; ${remote.automation.home}/scripts/install/magento/config/profiles/base_config.xml &amp;&amp;
+                php -f ${web.ce.dir}/bin/magento setup:performance:generate-fixtures ${remote.automation.home}/scripts/install/magento/config/profiles/base_config.xml --skip-reindex
+                "/>
+        <if>
+            <isset property="reindex_after_config_apply"/>
+            <then>
+                <antcall target="reindex"/>
+            </then>
+        </if>
+    </target>
+
+    <target name="varnish-settings-load" if="varnish.host">
+        <antcall target="clear-magento-var"/>
+       <if>
+           <isset property="balancer.host"/>
+            <then>
+                <sshexec host="${webnode.host}"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="
+                        sed -i &quot;s#%varnish_access_list%#${balancer.host}#&quot; ${remote.automation.home}/scripts/install/magento/config/profiles/varnish_config.xml &amp;&amp;
+                        sed -i &quot;s#%varnish_backend_host%#${balancer.host}#&quot; ${remote.automation.home}/scripts/install/magento/config/profiles/varnish_config.xml &amp;&amp;
+                        php -f ${web.ce.dir}/bin/magento setup:performance:generate-fixtures ${remote.automation.home}/scripts/install/magento/config/profiles/varnish_config.xml --skip-reindex
+                        "/>
+            </then>
+           <else>
+               <sshexec host="${webnode.host}"
+                        username="${webnode.user}"
+                        keyfile="${keyfile}"
+                        trust="yes"
+                        command="
+                        sed -i &quot;s#%varnish_access_list%#${webnode.host}#&quot; ${remote.automation.home}/scripts/install/magento/config/profiles/varnish_config.xml &amp;&amp;
+                        sed -i &quot;s#%varnish_backend_host%#${webnode.host}#&quot; ${remote.automation.home}/scripts/install/magento/config/profiles/varnish_config.xml &amp;&amp;
+                        php -f ${web.ce.dir}/bin/magento setup:performance:generate-fixtures ${remote.automation.home}/scripts/install/magento/config/profiles/varnish_config.xml --skip-reindex
+                        "/>
+           </else>
+       </if>
+    </target>
+
+    <target name="reindex">
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; php -f ${install.php.dir} indexer:reindex 2>&amp;1" />
+    </target>
+
+    <target name="clean-cache-host">
+        <sshexec host="${host}"
+                 username="${user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; php -f ${install.php.dir} cache:clean 2>&amp;1" />
+    </target>
+
+    <target name="clean-caches">
+        <antcall target="clean-cache-host">
+            <param name="host" value="${webnode.host}"/>
+            <param name="user" value="${webnode.user}"/>
+        </antcall>
+        <if>
+            <isset property="webnode02.host"/>
+            <then>
+                <antcall target="clean-cache-host">
+                    <param name="host" value="${webnode02.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode03.host"/>
+            <then>
+                <antcall target="clean-cache-host">
+                    <param name="host" value="${webnode03.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode04.host"/>
+            <then>
+                <antcall target="clean-cache-host">
+                    <param name="host" value="${webnode04.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode05.host"/>
+            <then>
+                <antcall target="clean-cache-host">
+                    <param name="host" value="${webnode05.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode06.host"/>
+            <then>
+                <antcall target="clean-cache-host">
+                    <param name="host" value="${webnode06.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+    </target>
+
+    <target name="clear-magento-var">
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; rm -rf var/*"/>
+    </target>
+
+    <target name="generate-test-data">
+        <antcall target="clear-magento-var"/>
+        <tolower input="${edition}" output="lower-case-edition"/>
+        <tolower input="${test.data.profile}" output="lower-case-profile"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 usepty="true"
+                 command="cd ${web.ce.dir}; php -f ${install.php.dir} setup:performance:generate-fixtures ${web.ce.dir}/setup/performance-toolkit/profiles/${lower-case-edition}/${lower-case-profile}.xml --skip-reindex"/>
+    </target>
+
+    <!-- This applies magento data from dump(if dump exist) or generates new data and saves it to dump -->
+    <target name="apply-magento-data" depends="-check-existing-export-magento-db-full-file,-check-existing-export-magento-db-part-file,-check-existing-export-magento-db-checkout-file">
+        <if>
+            <isset property="mysql02.host"/>
+            <then>
+                <if>
+                    <and>
+                        <isset property="dump.part.exists"/>
+                        <isset property="dump.checkout.exists"/>
+                    </and>
+                    <then>
+                        <echo message="Restore for two DB"/>
+                        <antcall target="restore-magento-db"/>
+                        <antcall target="restore-magento-db-checkout"/>
+                    </then>
+                    <else>
+                        <antcall target="generate-test-data"/>
+                    </else>
+                </if>
+            </then>
+            <else>
+                <if>
+                    <isset property="dump.full.exists"/>
+                    <then>
+                        <echo message="Restore for one DB"/>
+                        <antcall target="restore-magento-db"/>
+                    </then>
+                    <else>
+                        <antcall target="generate-test-data"/>
+                    </else>
+                </if>
+            </else>
+        </if>
+    </target>
+
+    <target name="enable-redis" if="redis.host">
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="php -f ${remote.automation.home}/scripts/install/magento/config/enable-redis.php -- --config_file=${web.ce.dir}/app/etc/env.php --cache_host=${redis.host} --cache_port=${redis.port} --cache_types=${redis.magento_cache_types} --session_host=${redis.session.host} --session_port=${redis.session.port}" />
+        <antcall target="set-config-file-permissions">
+            <param name="host" value="${webnode.host}"/>
+        </antcall>
+    </target>
+
+    <target name="deploy-static">
+        <!-- It`s not obvious but such manipulations required for redeploying static after code deployment without full reinstall. Need to be careful with NFS and symlinks - first time pub/static is a dir, on regeneration it`s a symlink -->
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="rm -Rf ${web.ce.dir}/pub/static_tmp; mkdir -p ${web.ce.dir}/pub/static_tmp/; yes|cp -R ${web.ce.dir}/pub/static/.htaccess ${web.ce.dir}/pub/static_tmp/; rm -Rf ${web.ce.dir}/pub/static; mkdir -p ${web.ce.dir}/pub/static; yes|cp ${web.ce.dir}/pub/static_tmp/.htaccess ${web.ce.dir}/pub/static/"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; rm -rf var/di var/generation; php -f ${install.php.dir} setup:static-content:deploy" />
+        <if>
+            <isset property="balancer.host"/>
+            <then>
+                <sshexec host="${webnode.host}"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="rm -Rf /opt/static/*; rm -Rf /opt/static/.htaccess; yes|cp -Rfp ${web.ce.dir}/pub/static/* /opt/static/; yes|cp -Rfp ${web.ce.dir}/pub/static/.htaccess /opt/static/"/>
+                <sshexec host="${webnode.host}"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="rm -Rf ${web.ce.dir}/pub/static"/>
+                <sshexec host="${webnode.host}"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="ln -s /opt/static ${web.ce.dir}/pub/static"/>
+            </then>
+        </if>
+        <antcall target="_remote-redis-remove-old-cache"/>
+    </target>
+
+    <!-- ========================= -->
+    <!-- Solr related targets      -->
+    <!-- ========================= -->
+
+    <!-- Restart Solr Server -->
+    <target name="reset-solr" if="solr.host">
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="service solr stop"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="rm -rf /opt/solr/*"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="tar -xzvf /opt/apache-solr*.tgz --directory=/opt"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="mv /opt/apache-solr-3.6.2 /opt/solr"/>
+        <mkdir dir="${local_working_dir}/solr-conf"/>
+        <scp file="${webnode.user}@${webnode.host}:${web.ee.dir}/lib/internal/Apache/Solr/conf/*" todir="${local_working_dir}/solr-conf" trust="yes"  keyfile="${keyfile}"/>
+        <scp todir="${solr.user}@${solr.host}:/opt/solr/example/solr/conf/" trust="yes" keyfile="${keyfile}">
+            <fileset dir="${local_working_dir}/solr-conf/">
+                <include name="*"/>
+            </fileset>
+        </scp>
+        <delete dir="${local_working_dir}/solr-conf"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="rm -rf /opt/solr/example/solr/data/index/*"/>
+        <sshexec host="${solr.host}"
+                 trust="yes"
+                 username="${solr.user}"
+                 keyfile="${keyfile}"
+                 command="service solr start"
+                 timeout="30000"
+                 failonerror="false"/>
+    </target>
+
+    <!-- ========================= -->
+    <!-- Varnish related targets -->
+    <!-- ========================= -->
+
+    <target name="install-varnish-3" depends="init" if="varnish.host">
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; php dev/build/core_dev/performance/client-side/varnish-download.php -v3 >${web.ce.dir}/default.vcl"/>
+    </target>
+
+    <target name="install-varnish-4" depends="init" if="varnish.host">
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; php -f dev/build/core_dev/performance/client-side/varnish-download.php > ${web.ce.dir}/default.vcl"/>
+    </target>
+
+    <target name="install-varnish" depends="init" if="varnish.host">
+        <if>
+            <isset property="balancer.host"/>
+            <then>
+                <antcall target="install-varnish-4"/>
+            </then>
+            <else>
+                <antcall target="install-varnish-3"/>
+            </else>
+        </if>
+        <scp file="${webnode.user}@${webnode.host}:${web.ce.dir}/default.vcl" todir="${local_working_dir}" trust="yes"  keyfile="${keyfile}"/>
+        <scp todir="${varnish.user}@${varnish.host}:/etc/varnish/default.vcl" file="${local_working_dir}/default.vcl" trust="yes" keyfile="${keyfile}"/>
+        <antcall target="restart-varnish"/>
+    </target>
+
+    <target name="restart-varnish" if="varnish.host">
+        <sshexec host="${varnish.host}"
+                 trust="yes"
+                 username="${varnish.user}"
+                 keyfile="${keyfile}"
+                 command="service varnish restart"
+                 failonerror="false"/>
+    </target>
+
+    <!-- ========================= -->
+    <!-- Database related targets -->
+    <!-- ========================= -->
+
+    <target name="create-magento-db" >
+        <sshexec host="${mysql.host}"
+                 username="${mysql.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="mysql -uroot -p${mysql.root.password} &lt; ${remote.automation.home}/scripts/install/create-magento-db.sql"/>
+    </target>
+
+    <target name="export-magento-dbs" depends="check-commit.rev.ce,check-commit.rev.ee" >
+        <if>
+            <isset property="mysql02.host"/>
+            <then>
+                <sshexec host="${mysql.host}"
+                         username="${mysql.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="${install.scripts.home}/export-magento-db.sh -u ${db-user} -p ${db-pass} -n ${db-name} -f ${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.part.sql"/>
+                <sshexec host="${mysql02.host}"
+                         username="${mysql.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="${install.scripts.home}/export-magento-db.sh -u ${db-user} -p ${db-pass} -n ${db-name} -f ${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.sql"/>
+            </then>
+            <else>
+                <sshexec host="${mysql.host}"
+                         username="${mysql.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="${install.scripts.home}/export-magento-db.sh -u ${db-user} -p ${db-pass} -n ${db-name} -f ${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.full.sql"/>
+            </else>
+        </if>
+    </target>
+
+     <target name="check-commit.rev.ce" unless="commit.rev.ce">
+        <exec executable="bash"
+              inputstring="git --git-dir ${local.automation.home}/magento2ce/.git rev-parse ${commit.ce}"
+              failonerror="false"
+              outputproperty="commit.rev.ce"/>
+        <echo message="magento2ce rev = ${commit.rev.ce}." />
+    </target>
+
+    <target name="check-commit.rev.ee" unless="commit.rev.ee">
+        <exec executable="bash"
+              inputstring="git --git-dir ${local.automation.home}/magento2ee/.git rev-parse ${commit.ee}"
+              failonerror="false"
+              outputproperty="commit.rev.ee"/>
+        <echo message="magento2ee rev = ${commit.rev.ee}." />
+    </target>
+
+    <target name="split-checkout-db" if="mysql02.host" >
+        <antcall target="mpaf-copy-host">
+            <param name="host" value="${mysql02.host}"/>
+            <param name="user" value="${mysql.user}"/>
+        </antcall>
+        <sshexec host="${mysql02.host}"
+                 username="${mysql.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="mysql -uroot -p${mysql.root.password} &lt; ${remote.automation.home}/scripts/install/create-magento-db.sql"/>
+
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; bin/magento setup:db-schema:split-quote --host='${mysql02.host}' --dbname='${db-name}' --username='root' --password='${mysql.root.password}'" />
+    </target>
+
+    <!-- Restore magento data for double or simple database configuration on the mysql.host. -->
+    <target name="restore-magento-db" depends="check-commit.rev.ce,check-commit.rev.ee" >
+        <if>
+            <isset property="mysql02.host"/>
+            <then>
+                <sshexec host="${mysql.host}"
+                         username="${mysql.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="gunzip -c ${remote.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.part.sql.gz > ${remote.automation.home}/working/dataset/dump.sql"/>
+            </then>
+            <else>
+                <sshexec host="${mysql.host}"
+                         username="${mysql.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="gunzip -c ${remote.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.full.sql.gz > ${remote.automation.home}/working/dataset/dump.sql"/>
+            </else>
+        </if>
+        <sshexec host="${mysql.host}"
+                 username="${mysql.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="mysql -uroot -p${mysql.root.password} ${db-name} &lt; ${remote.automation.home}/working/dataset/dump.sql"/>
+        <sshexec host="${mysql.host}"
+                 username="${mysql.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="rm -rf ${remote.automation.home}/working/dataset/dump.sql"/>
+    </target>
+
+    <!-- Restore magento orders data for double database configuration on the mysql02.host. -->
+    <target name="restore-magento-db-checkout" depends="check-commit.rev.ce,check-commit.rev.ee" if="mysql02.host">
+        <sshexec host="${mysql02.host}"
+                 username="${mysql.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="gunzip -c ${remote.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.sql.gz > ${remote.automation.home}/working/dataset/dump.sql"/>
+        <sshexec host="${mysql02.host}"
+                 username="${mysql.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="mysql -uroot -p${mysql.root.password} ${db-name} &lt; ${remote.automation.home}/working/dataset/dump.sql"/>
+        <sshexec host="${mysql02.host}"
+                 username="${mysql.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="rm -rf ${remote.automation.home}/working/dataset/dump.sql"/>
+    </target>
+
+    <!-- This is check existing magento dump for actual code revisions, profile size and simple database configuration on the mysql.host. -->
+    <target name="-check-existing-export-magento-db-full-file" depends="check-commit.rev.ce,check-commit.rev.ee" unless="dump.full.exists">
+        <if>
+            <not>
+                <isset property="mysql02.host"/>
+            </not>
+            <then>
+                <exec executable="bash" inputstring="rm -rf ${remote.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.full.sql.gz"/>
+                <exec executable="bash" inputstring="ssh -i ${keyfile} ${mysql.user}@${mysql.host} [ -f ${remote.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.full.sql.gz ] &amp;&amp; (mkdir -p ${local.automation.home}/working/dataset/; touch ${local.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.full.sql.gz)"/>
+                <available property="dump.full.exists" file="${local.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.full.sql.gz"/>
+            </then>
+        </if>
+    </target>
+
+    <!-- This is check existing magento dump (part without orders) for actual code revisions, profile size and double database configuration on the mysql.host. -->
+    <target name="-check-existing-export-magento-db-part-file" depends="check-commit.rev.ce,check-commit.rev.ee" unless="dump.part.exists">
+        <if>
+            <isset property="mysql02.host"/>
+            <then>
+                <exec executable="bash" inputstring="rm -rf ${remote.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.part.sql.gz"/>
+                <exec executable="bash" inputstring="ssh -i ${keyfile} ${mysql.user}@${mysql.host} [ -f ${remote.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.part.sql.gz ] &amp;&amp; (mkdir -p ${local.automation.home}/working/dataset/; touch ${local.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.part.sql.gz)"/>
+                <available property="dump.part.exists" file="${local.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.part.sql.gz"/>
+            </then>
+        </if>
+    </target>
+
+    <!-- This is check existing magento orders dump for actual code revisions, profile size and double database configuration on the mysql02.host. -->
+    <target name="-check-existing-export-magento-db-checkout-file" depends="check-commit.rev.ce,check-commit.rev.ee" unless="dump.checkout.exists">
+        <if>
+            <isset property="mysql02.host"/>
+            <then>
+                <exec executable="bash" inputstring="rm -rf ${remote.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.sql.gz"/>
+                <exec executable="bash" inputstring="ssh -i ${keyfile} ${mysql.user}@${mysql02.host} [ -f ${remote.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.sql.gz ] &amp;&amp; (mkdir -p ${local.automation.home}/working/dataset/; touch ${local.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.sql.gz)"/>
+                <available property="dump.checkout.exists" file="${local.automation.home}/working/dataset/${test.data.profile}.${commit.rev.ce}.${commit.rev.ee}.sql.gz"/>
+            </then>
+        </if>
+    </target>
+
+    <!--  ===========================  -->
+    <!-- Copy MPAF files to all nodes  -->
+    <!--  ===========================  -->
+    <target name="_copy-mpaf">
+        <antcall target="mpaf-copy-host">
+            <param name="host" value="${webnode.host}"/>
+            <param name="user" value="${webnode.user}"/>
+        </antcall>
+        <if>
+            <isset property="webnode02.host"/>
+            <then>
+                <antcall target="mpaf-copy-host">
+                    <param name="host" value="${webnode02.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode03.host"/>
+            <then>
+                <antcall target="mpaf-copy-host">
+                    <param name="host" value="${webnode03.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode04.host"/>
+            <then>
+                <antcall target="mpaf-copy-host">
+                    <param name="host" value="${webnode04.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode05.host"/>
+            <then>
+                <antcall target="mpaf-copy-host">
+                    <param name="host" value="${webnode05.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode06.host"/>
+            <then>
+                <antcall target="mpaf-copy-host">
+                    <param name="host" value="${webnode06.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <antcall target="mpaf-copy-host">
+            <param name="host" value="${mysql.host}"/>
+            <param name="user" value="${mysql.user}"/>
+        </antcall>
+        <if>
+            <isset property="mysql02.host"/>
+            <then>
+                <antcall target="mpaf-copy-host">
+                    <param name="host" value="${mysql02.host}"/>
+                    <param name="user" value="${mysql.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="balancer.host"/>
+            <then>
+                <antcall target="mpaf-copy-host">
+                    <param name="host" value="${balancer.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="redis.host"/>
+            <then>
+                <antcall target="mpaf-copy-host">
+                    <param name="host" value="${redis.host}"/>
+                    <param name="user" value="${redis.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <antcall target="mpaf-copy-host">
+            <param name="host" value="${loadgenerator.host}"/>
+            <param name="user" value="${loadgenerator.user}"/>
+        </antcall>
+        <if>
+            <isset property="varnish.host"/>
+            <then>
+                <antcall target="mpaf-copy-host">
+                    <param name="host" value="${varnish.host}"/>
+                    <param name="user" value="${varnish.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="solr.host"/>
+            <then>
+                <antcall target="mpaf-copy-host">
+                    <param name="host" value="${solr.host}"/>
+                    <param name="user" value="${solr.user}"/>
+                </antcall>
+            </then>
+        </if>
+    </target>
+
+    <target name="mpaf-copy-host" >
+        <sshexec host="${host}"
+                 username="${user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="rm -rf ${remote.automation.home}"/>
+        <sshexec host="${host}"
+                 username="${user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="mkdir -p ${remote.automation.home};"/>
+        <!-- scp files and keep permissions intact -->
+        <exec executable="sh" failonerror="true">
+            <arg value="-c"/>
+            <arg value="rsync -r -v --rsh='ssh -i ${keyfile}' --exclude=*/working* ${mpaf_root_infra_dir}/* ${user}@${host}:${remote.automation.home}"/>
+        </exec>
+    </target>
+
+    <!--  ===============================================  -->
+    <!-- Deploy magento app to all web nodes and balancer  -->
+    <!--  ===============================================  -->
+    <target name="_deploy_node">
+        <antcall target="_remote-switch-tmpfs">
+            <param name="host" value="${host}"/>
+            <param name="user" value="${webnode.user}"/>
+        </antcall>
+        <sshexec host="${host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="mkdir -p ${web.ce.dir};"/>
+        <echo message="Rsync ${web.ce.dir} to ${host}"/>
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="rsync -rz --copy-links --delete --exclude=/.git --exclude=/pub/static ${web.ce.dir}/ ${webnode.user}@${host}:${web.ce.dir}"/>
+        <sshexec host="${host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="rm -Rf ${web.ce.dir}/pub/static"/>
+        <sshexec host="${host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="ln -s /opt/static ${web.ce.dir}/pub/static"/>
+        <echo message="Setting magento file permissions"/>
+        <sshexec host="${host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="cd ${web.ce.dir}; chmod -Rf 777 app/etc/ var pub;"/>
+        <echo message="Restarting PHP-FPM service"/>
+        <if>
+            <equals arg1="${refresh}" arg2="1" />
+            <then>
+                <sshexec host="${host}"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="service php-fpm restart"/>
+            </then>
+            <else>
+                <sshexec host="${host}"
+                         username="${webnode.user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="service nginx restart"/>
+            </else>
+        </if>
+    </target>
+
+    <target name="_remote-switch-tmpfs" description="Enable/Disable tmpfs for path in ${tmpfs.path} ">
+        <if>
+            <equals arg1="${enable.tmpfs}" arg2="1" />
+            <then>
+                <echo message="Enabling tmpfs on ${host} in ${tmpfs.path}"/>
+                <sshexec host="${host}"
+                         username="${user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="rm -Rf /dev/shm/html; mkdir -p /dev/shm/html; chmod -R 0777 /dev/shm/html; rm -Rf ${web.root}; ln -s /dev/shm/html ${web.root}"/>
+            </then>
+            <else>
+                <echo message="Disabling tmpfs on ${host} in ${tmpfs.path}"/>
+                <sshexec host="${host}"
+                         username="${user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="rm -Rf ${web.root}; mkdir -p ${web.root}; chmod -R 0777 ${web.root}"/>
+            </else>
+        </if>
+    </target>
+
+    <target name="deploy-multiple-web-nodes">
+        <if>
+            <isset property="webnode02.host"/>
+            <then>
+                <antcall target="_deploy_node">
+                    <param name="host" value="${webnode02.host}"/>
+                    <param name="refresh" value="1"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode03.host"/>
+            <then>
+                <antcall target="_deploy_node">
+                    <param name="host" value="${webnode03.host}"/>
+                    <param name="refresh" value="1"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode04.host"/>
+            <then>
+                <antcall target="_deploy_node">
+                    <param name="host" value="${webnode04.host}"/>
+                    <param name="refresh" value="1"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode05.host"/>
+            <then>
+                <antcall target="_deploy_node">
+                    <param name="host" value="${webnode05.host}"/>
+                    <param name="refresh" value="1"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode06.host"/>
+            <then>
+                <antcall target="_deploy_node">
+                    <param name="host" value="${webnode06.host}"/>
+                    <param name="refresh" value="1"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="balancer.host"/>
+            <then>
+                <antcall target="_deploy_node">
+                    <param name="host" value="${balancer.host}"/>
+                    <param name="refresh" value="0"/>
+                </antcall>
+            </then>
+        </if>
+    </target>
+
+    <!--  ===============================================  -->
+    <!--  Reboot VM logic                                  -->
+    <!--  ===============================================  -->
+
+    <target name="vm-reboot">
+        <sshexec host="${host}"
+                 username="${user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="reboot"/>
+        <waitfor maxwait="300" checkevery="15" maxwaitunit="second">
+            <socket server="${host}" port="22"/>
+        </waitfor>
+    </target>
+
+    <target name="vm-reboot-webnode">
+        <sshexec host="${host}"
+                 username="${user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="rm -rf /tmp/web_restart; mkdir -p /tmp/web_restart; cp -rp ${web.root}/* /tmp/web_restart;"/>
+        <antcall target="vm-reboot">
+            <param name="host" value="${host}"/>
+            <param name="user" value="${user}"/>
+        </antcall>
+        <!-- Sleep task to ensure system is fully booted, not just ssh daemon started -->
+        <sleep seconds="50"/>
+        <antcall target="_remote-switch-tmpfs">
+            <param name="host" value="${host}"/>
+            <param name="user" value="${user}"/>
+        </antcall>
+        <sshexec host="${host}"
+                 username="${user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 command="mv /tmp/web_restart/* ${web.root};"/>
+        <antcall target="set-config-file-permissions">
+            <param name="host" value="${host}"/>
+        </antcall>
+        <if>
+            <not>
+                <isset property="balancer.host"/>
+            </not>
+            <then>
+                <sshexec host="${host}"
+                         username="${user}"
+                         keyfile="${keyfile}"
+                         trust="yes"
+                         command="service nginx restart;"/>
+            </then>
+        </if>
+    </target>
+
+    <target name="reboot-vms">
+    <antcall target="vm-reboot-webnode">
+            <param name="host" value="${webnode.host}"/>
+            <param name="user" value="${webnode.user}"/>
+        </antcall>
+        <antcall target="vm-reboot">
+            <param name="host" value="${loadgenerator.host}"/>
+            <param name="user" value="${loadgenerator.user}"/>
+        </antcall>
+        <antcall target="vm-reboot">
+            <param name="host" value="${mysql.host}"/>
+            <param name="user" value="${mysql.user}"/>
+        </antcall>
+        <if>
+            <isset property="redis.host"/>
+            <then>
+                <antcall target="vm-reboot">
+                    <param name="host" value="${redis.host}"/>
+                    <param name="user" value="${redis.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="balancer.host"/>
+            <then>
+                <antcall target="vm-reboot-webnode">
+                    <param name="host" value="${balancer.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+                <isset property="solr.host"/>
+            <then>
+                <antcall target="vm-reboot">
+                    <param name="host" value="${solr.host}"/>
+                    <param name="user" value="${solr.user}"/>
+                </antcall>
+            </then>
+        </if>
+
+        <if>
+                <isset property="varnish.host"/>
+            <then>
+                <antcall target="vm-reboot">
+                    <param name="host" value="${varnish.host}"/>
+                    <param name="user" value="${varnish.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="mysql02.host"/>
+            <then>
+                <antcall target="vm-reboot">
+                    <param name="host" value="${mysql02.host}"/>
+                    <param name="user" value="${mysql.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode02.host"/>
+            <then>
+                <antcall target="vm-reboot-webnode">
+                    <param name="host" value="${webnode02.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode03.host"/>
+            <then>
+                <antcall target="vm-reboot-webnode">
+                    <param name="host" value="${webnode03.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode04.host"/>
+            <then>
+                <antcall target="vm-reboot-webnode">
+                    <param name="host" value="${webnode04.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode05.host"/>
+            <then>
+                <antcall target="vm-reboot-webnode">
+                    <param name="host" value="${webnode05.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode06.host"/>
+            <then>
+                <antcall target="vm-reboot-webnode">
+                    <param name="host" value="${webnode06.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+    </target>
+
+    <target name="check-pub-static">
+        <sshexec host="${webnode.host}"
+                 username="${webnode.user}"
+                 keyfile="${keyfile}"
+                 trust="yes"
+                 outputproperty="current.pubstatic"
+                 command="cd ${web.ce.dir}/pub/static/frontend/Magento/blank/en_US; ls -1 | wc -l" />
+        <script language="javascript">
+            <![CDATA[
+                    var minReqFiles     = project.getProperty("min.req.files");
+                    var currentFiles    = project.getProperty("current.pubstatic");
+                    project.setProperty('num.valid.pubstatic', currentFiles < minReqFiles ? "false" : "true");
+                ]]>
+        </script>
+        <fail message="Current pub/static files (${current.pubstatic}) does not meet the minimum required (${min.req.files}). Please review Magento installation.">
+            <condition>
+                <isfalse value="${num.valid.pubstatic}" />
+            </condition>
+        </fail>
+    </target>
+
+    <scriptdef language="javascript" name="tolower">
+        <attribute name="input"/>
+        <attribute name="output"/>
+        project.setProperty(attributes.get("output"), attributes.get("input").toLowerCase() );
+    </scriptdef>
+
+    <target name="bamboo-install" depends="init,checkout-magento2,prep-install,create-magento-db,install,app-settings,install-varnish,enable-redis,split-checkout-db,deploy-static,single-tenant-compiler,set-production-mode,apply-magento-data,reindex,export-magento-dbs,deploy-multiple-web-nodes,clean-caches,reboot-vms,check-pub-static" />
+
+    <target name="recompile">
+        <antcall target="_remote-cleanup-shared-static" />
+        <antcall target="_remote-redis-remove-old-cache" />
+        <antcall target="reset-varnish" />
+        <antcall target="deploy-static" />
+        <antcall target="single-tenant-compiler" />
+        <antcall target="deploy-multiple-web-nodes" />
+    </target>
+
+</project>

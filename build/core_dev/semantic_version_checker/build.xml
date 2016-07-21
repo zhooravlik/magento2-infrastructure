@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Ant build configuration for semantic version checker tool
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="Semantic version checker" basedir="../../../../" default="run">
+    <import file="../util.xml"/>
+
+    <target name="run" depends="_server_info" description="Semantic version checker">
+        <fail unless="env.source_before_dir" message="Bamboo variable 'source_before_dir' must be defined on your agent"/>
+        <fail unless="env.source_after_dir" message="Bamboo variable 'source_after_dir' must be defined on your agent"/>
+        <antcall target="_run_semantic_version_checker"/>
+    </target>
+
+    <target name="_tools_install" if="env.COMPOSER_HOME"  depends="_composer_install">
+        <echo message="Run 'composer install --no-plugins' for directory '${product_root_dir}/dev'"/>
+        <exec executable="/usr/local/bin/composer" dir="${product_root_dir}/dev" failonerror="true">
+            <env key="COMPOSER_PROCESS_TIMEOUT" value="600"/>
+            <arg line="install --no-plugins"/>
+        </exec>
+    </target>
+
+    <target name="_run_semantic_version_checker" depends="_tools_install, _product_location">
+        <property name="source_before_dir" value="${basedir}/../${env.source_before_dir}"/>
+        <property name="source_after_dir" value="${basedir}/../${env.source_after_dir}"/>
+        <echo message="Run 'Semantic Version Checker'.  Comparing 'source-before': ${source_before_dir} with 'source-after': ${source_after_dir}" />
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/dev/tools/Magento/Tools/SemanticVersionChecker/bin/svc.php
+                compare ${source_before_dir} ${source_after_dir}
+                "/>
+        </exec>
+    </target>
+</project>

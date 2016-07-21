@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Apache Ant's build file for core development unit tests
+ *
+ * {license_notice}
+ *
+ * @copyright  {copyright}
+ * @license    {license_link}
+ */
+-->
+<project name="Migration Tool Unit Tests" basedir="../../../" default="unit_tests_migration_tool_ce">
+    <import file="../core_dev/util.xml"/>
+    <property name="file.phpunit" location="${basedir}/dev/build/core_dev/unit/unit.sh"/>
+
+    <target name="unit_tests_migration_tool_ce" depends="_server_info,_community_edition,_product_location,_composer_install" description="Tests for migration tools">
+        <exec dir="${product_root_dir}/${env.MIGRATION_TOOL_COMPOSER_PATH}/tests/unit" executable="${phpunit}"
+              failonerror="true">
+            <arg line="${php_arguments}"/>
+            <arg line="${phpunit_arguments}"/>
+            <arg line="--log-junit ${basedir}/unit_tests_data-migration-tool.xml"/>
+        </exec>
+        <exec dir="${product_root_dir}/${env.MIGRATION_TOOL_COMPOSER_PATH}/tests/static" executable="${phpunit}"
+              failonerror="true">
+            <arg line="${php_arguments}"/>
+            <arg line="${phpunit_arguments}"/>
+            <arg line="--log-junit ${basedir}/unit_tests_data-migration-tool.xml"/>
+        </exec>
+    </target>
+</project>

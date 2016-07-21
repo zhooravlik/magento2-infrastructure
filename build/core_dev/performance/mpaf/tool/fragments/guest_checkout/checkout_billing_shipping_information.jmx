@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Checkout Billing/Shipping Information ${__property(activeAdminThread)}(${testLabel})" enabled="true">
+      <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">false</boolProp>
+            <stringProp name="Argument.value">{&quot;addressInformation&quot;:{&quot;shipping_address&quot;:{&quot;countryId&quot;:&quot;US&quot;,&quot;regionId&quot;:&quot;12&quot;,&quot;regionCode&quot;:&quot;CA&quot;,&quot;region&quot;:&quot;California&quot;,&quot;street&quot;:[&quot;10441 Jefferson Blvd ste 200&quot;],&quot;company&quot;:&quot;&quot;,&quot;telephone&quot;:&quot;3109450345&quot;,&quot;fax&quot;:&quot;&quot;,&quot;postcode&quot;:&quot;90232&quot;,&quot;city&quot;:&quot;Culver City&quot;,&quot;firstname&quot;:&quot;Name&quot;,&quot;lastname&quot;:&quot;Lastname&quot;},&quot;shipping_method_code&quot;:&quot;flatrate&quot;,&quot;shipping_carrier_code&quot;:&quot;flatrate&quot;}}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}rest/default/V1/carts/${cart_id}/shipping-information</stringProp>
+      <stringProp name="HTTPSampler.method">POST</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+        <collectionProp name="HeaderManager.headers">
+          <elementProp name="" elementType="Header">
+            <stringProp name="Header.name">Referer</stringProp>
+            <stringProp name="Header.value">${base_path}checkout/onepage/</stringProp>
+          </elementProp>
+          <elementProp name="Content-Type" elementType="Header">
+            <stringProp name="Header.name">Content-Type</stringProp>
+            <stringProp name="Header.value">application/json; charset=UTF-8</stringProp>
+          </elementProp>
+          <elementProp name="X-Requested-With" elementType="Header">
+            <stringProp name="Header.name">X-Requested-With</stringProp>
+            <stringProp name="Header.value">XMLHttpRequest</stringProp>
+          </elementProp>
+          <elementProp name="Accept" elementType="Header">
+            <stringProp name="Header.name">Accept</stringProp>
+            <stringProp name="Header.value">application/json</stringProp>
+          </elementProp>
+        </collectionProp>
+      </HeaderManager>
+      <hashTree/>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert success" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="-1494218646">{&quot;payment_methods&quot;:</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">2</intProp>
+      </ResponseAssertion>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

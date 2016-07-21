@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Ajax Load Dashboard Data(Catalog Browsing By Customer)" enabled="true">
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="blocks" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">[&quot;catalog.compare.link&quot;,&quot;catalog.compare.link&quot;,&quot;catalog.compare.sidebar&quot;,&quot;customer_account_dashboard_address&quot;,&quot;customer_account_dashboard_info&quot;,&quot;customer_account_dashboard_info1&quot;,&quot;customer_account_dashboard_top&quot;,&quot;global_messages&quot;,&quot;header&quot;,&quot;header&quot;,&quot;messages&quot;,&quot;minicart&quot;,&quot;minicart.content&quot;,&quot;multiple-wish-list-link&quot;,&quot;multiple-wish-list-link&quot;,&quot;multiple-wishlist_sidebar&quot;,&quot;sale.reorder.sidebar&quot;,&quot;wishlist_behaviour&quot;]</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">blocks</stringProp>
+          </elementProp>
+          <elementProp name="handles" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">[&quot;default&quot;,&quot;customer_account_index&quot;]</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">handles</stringProp>
+          </elementProp>
+          <elementProp name="ajax" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">true</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">ajax</stringProp>
+          </elementProp>
+          <elementProp name="isAjax" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">true</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">isAjax</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}page_cache/block/render/</stringProp>
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="1017199912">&quot;catalog.compare.link&quot;</stringProp>
+          <stringProp name="1433246342">&quot;catalog.compare.sidebar&quot;</stringProp>
+          <stringProp name="-1652411158">&quot;customer_account_dashboard_address&quot;</stringProp>
+          <stringProp name="-1370199944">&quot;customer_account_dashboard_info&quot;</stringProp>
+          <stringProp name="473475195">&quot;customer_account_dashboard_info1&quot;</stringProp>
+          <stringProp name="1341602217">&quot;customer_account_dashboard_top&quot;</stringProp>
+          <stringProp name="-78682925">&quot;header&quot;</stringProp>
+          <stringProp name="468463220">&quot;messages&quot;</stringProp>
+          <stringProp name="-1577391831">&quot;minicart&quot;</stringProp>
+          <stringProp name="424601807">&apos;minicart_content&apos;</stringProp>
+          <stringProp name="1616936894">&quot;sale.reorder.sidebar&quot;</stringProp>
+          <stringProp name="-1364901281">wish-list-link&quot;</stringProp>
+          <stringProp name="-363973334">Welcome,</stringProp>
+          <stringProp name="368947157">Address Book</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">2</intProp>
+      </ResponseAssertion>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

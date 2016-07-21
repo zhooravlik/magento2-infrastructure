@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Apache Ant's build file with general-purpose routines for JS-tests-related CI builds
+ *
+ * {license_notice}
+ *
+ * @copyright  {copyright}
+ * @license    {license_link}
+ */
+-->
+<project name="Core Development JS Routines" basedir="../../../../" default="_community_edition">
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+    <property environment="env"/>
+
+    <target name="_npm_install">
+        <echo message="Run 'npm install' for directory '${target_npm_dir}'"/>
+        <exec executable="/usr/bin/npm" dir="${target_npm_dir}">
+            <arg line="install"/>
+        </exec>
+    </target>
+
+    <target name="_install-magento" description="Install Magento application">
+        <echo message="Run 'magento install' on db-host '${env.db_host}', hosts '${env.http_host}'
+            and '${env.https_host}'"/>
+        <exec executable="/usr/bin/php" failonerror="false">
+            <arg line="-f ${env.magento_dir} setup:install --language='en_US' --timezone='America/Los_Angeles' --currency='USD' --db-host='${env.db_host}' --db-name='${env.db_name}' --db-user='${env.db_user}' --db-password='${env.db_password}' --use-secure='0' --use-secure-admin='0' --use-rewrites='1' --admin-lastname='Doe' --admin-firstname='Admin' --admin-email='admin@example.com' --admin-use-security-key='0' --base-url='${env.http_host}' --base-url-secure='${env.https_host}' --backend-frontname='admin' --admin-user=admin --admin-password='123123q'"/>
+        </exec>
+    </target>
+
+    <target name="_generate_static_dir">
+        <exec executable="/usr/bin/php" dir="${basedir}" failonerror="true">
+            <arg line="-f bin/magento setup:static-content:deploy"/>
+        </exec>
+    </target>
+
+</project>

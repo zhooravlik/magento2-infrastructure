@@ -1,0 +1,1 @@
+navigate http://{host}/configurable-product-30.html

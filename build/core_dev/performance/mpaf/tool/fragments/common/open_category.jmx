@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Open Category${__property(activeAdminThread)}(${testLabel})" enabled="true">
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}${category_url_key}${url_suffix}</stringProp>
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="1210004667">&lt;span class=&quot;base&quot; data-ui-id=&quot;page-title&quot;&gt;${category_name}&lt;/span&gt;</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">6</intProp>
+      </ResponseAssertion>
+      <hashTree/>
+      <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor: Extract category id" enabled="true">
+        <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+        <stringProp name="RegexExtractor.refname">category_id</stringProp>
+        <stringProp name="RegexExtractor.regex">&lt;li class=&quot;item category([^&apos;&quot;]+)&quot;&gt;\s*&lt;strong&gt;${category_name}&lt;/strong&gt;\s*&lt;/li&gt;</stringProp>
+        <stringProp name="RegexExtractor.template">$1$</stringProp>
+        <stringProp name="RegexExtractor.default"></stringProp>
+        <stringProp name="RegexExtractor.match_number">1</stringProp>
+        <stringProp name="Scope.variable">simple_product_1_url_key</stringProp>
+      </RegexExtractor>
+      <hashTree/>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion: Assert category id" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="1191417111">^[0-9]+$</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">1</intProp>
+        <stringProp name="Assertion.scope">variable</stringProp>
+        <stringProp name="Scope.variable">category_id</stringProp>
+      </ResponseAssertion>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

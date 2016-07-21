@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scenario name="throughputDuration" title="KPI Throughput (Duration)">
+    <import name="http_request_default" />
+    <import name="http_header_manager" />
+    <import name="http_cookie_manager" />
+    <import name="user_defined_variables_filter_text" />
+    <import name="setup/setup">
+        <import name="admin_login/assert_logged_in" reference="SetUp - Login Submit Form" before="-"/>
+        <import name="setup/setup_search_customers_json" after="SetUp - Open Customer Grid" />
+        <import name="customer_checkout/ajax_load_login_form" after="SetUp - BeanShell Sampler: Validate properties and count users" />
+    </import>
+    <import name="admin_task" title="Admin Task" />
+    <import name="category_product_browsing_by_guest_tmpl">
+        <import name="runtime_controller" />
+        <import name="category_product_browsing_by_guest/get_arguments" reference="Runtime Controller" after="-" />
+        <import name="category_product_browsing_by_guest/open_home_page" reference="Runtime Controller" after="-" />
+        <import name="common/customer_all_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/open_category" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_view_1" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_simple_product_1" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_view_2" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_simple_product_2" reference="Runtime Controller" after="-" />
+        <import name="common/configurable_product_view_1" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_configurable_product_1" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="category_product_browsing_by_customer_tmpl">
+        <import name="http_cookie_manager_clear_cookies" />
+        <import name="runtime_controller" />
+        <import name="category_product_browsing_by_customer/get_arguments" reference="Runtime Controller" after="-" />
+        <import name="category_product_browsing_by_customer/open_home_page" reference="Runtime Controller" after="-" />
+        <import name="common/customer_all_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/open_login_page" reference="Runtime Controller" after="-" />
+        <import name="customer_checkout/ajax_load_login_form" reference="Runtime Controller" after="-" />
+        <import name="common/login" reference="Runtime Controller" after="-" />
+        <import name="category_product_browsing_by_customer/ajax_load_dashboard_data" reference="Runtime Controller" after="-" />
+        <import name="common/open_category" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_view_1" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_simple_product_1" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_view_2" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_simple_product_2" reference="Runtime Controller" after="-" />
+        <import name="common/configurable_product_view_1" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_configurable_product_1" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="checkout_by_guest_tmpl">
+        <import name="runtime_controller" />
+        <import name="checkout_by_guest/get_arguments" reference="Runtime Controller" after="-" />
+        <import name="common/open_home_page" reference="Runtime Controller" after="-" />
+        <import name="common/customer_all_section_load" reference="Runtime Controller" after="-" />
+        <import name="customer_checkout/ajax_load_login_form" reference="Runtime Controller" after="-" />
+        <import name="common/open_category" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_view_1" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_simple_product_1" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_add_to_cart_1" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Simple Product 1 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_1" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/simple_product_view_2" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_simple_product_2" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_add_to_cart_2" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Simple Product 2 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_2" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}2${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/configurable_product_view_1" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_configurable_product_1" reference="Runtime Controller" after="-" />
+        <import name="common/configurable_product_add_to_cart_1" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Configurable Product 1 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_3" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}3${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="guest_checkout/checkout_start" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="guest_checkout/checkout_estimate_shipping_methods" reference="Runtime Controller" after="-" />
+        <import name="guest_checkout/checkout_email_available" reference="Runtime Controller" after="-" />
+        <import name="guest_checkout/checkout_estimate_shipping_methods_with_postal_code" reference="Runtime Controller" after="-" />
+        <import name="guest_checkout/checkout_billing_shipping_information" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load_update_section_id" reference="Runtime Controller" after="-" />
+        <import name="guest_checkout/checkout_payment_info_place_order" reference="Runtime Controller" after="-" />
+        <import name="guest_checkout/checkout_success" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="checkout_by_customer_tmpl">
+        <import name="http_cookie_manager_clear_cookies" />
+        <import name="runtime_controller" />
+        <import name="checkout_by_customer/get_arguments" reference="Runtime Controller" after="-" />
+        <import name="common/open_home_page" reference="Runtime Controller" after="-" />
+        <import name="common/customer_all_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/open_login_page" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="customer_checkout/ajax_load_login_form" reference="Runtime Controller" after="-" />
+        <import name="common/login" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/open_category" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_view_1" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_simple_product_1" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_add_to_cart_1" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Simple Product 1 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_1" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/simple_product_view_2" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_simple_product_2" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_add_to_cart_2" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Simple Product 2 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_2" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}2${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/configurable_product_view_1" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_configurable_product_1" reference="Runtime Controller" after="-" />
+        <import name="common/configurable_product_add_to_cart_1" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Configurable Product 1 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_3" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}3${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="customer_checkout/checkout_start" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="customer_checkout/checkout_billing_shipping_information" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load_update_section_id" reference="Runtime Controller" after="-" />
+        <import name="customer_checkout/checkout_payment_info_place_order" reference="Runtime Controller" after="-" />
+        <import name="customer_checkout/checkout_success" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="customer_checkout/checkout_clear_cookie" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="abandoned_cart_by_guest_tmpl">
+        <import name="http_cookie_manager_clear_cookies" />
+        <import name="runtime_controller" />
+        <import name="abandoned_cart_by_guest/get_arguments" reference="Runtime Controller" after="-" />
+        <import name="common/open_home_page" reference="Runtime Controller" after="-" />
+        <import name="common/customer_all_section_load" reference="Runtime Controller" after="-" />
+        <import name="customer_checkout/ajax_load_login_form" reference="Runtime Controller" after="-" />
+        <import name="common/open_category" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_view_1" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_simple_product_1" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_add_to_cart_1" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Simple Product 1 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_1" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/simple_product_view_2" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_simple_product_2" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_add_to_cart_2" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Simple Product 2 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_2" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}2${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/configurable_product_view_1" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_configurable_product_1" reference="Runtime Controller" after="-" />
+        <import name="common/configurable_product_add_to_cart_1" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Configurable Product 1 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_3" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}3${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="abandoned_cart/cart_clear_cookies" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="abandoned_cart_by_customer_tmpl">
+        <import name="http_cookie_manager_clear_cookies" />
+        <import name="runtime_controller" />
+        <import name="abandoned_cart_by_customer/get_arguments" reference="Runtime Controller" after="-" />
+        <import name="common/open_home_page" reference="Runtime Controller" after="-" />
+        <import name="common/customer_all_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/open_login_page" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="customer_checkout/ajax_load_login_form" reference="Runtime Controller" after="-" />
+        <import name="common/login" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/open_category" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_view_1" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_simple_product_1" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_add_to_cart_1" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Simple Product 1 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_1" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/simple_product_view_2" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_simple_product_2" reference="Runtime Controller" after="-" />
+        <import name="common/simple_product_add_to_cart_2" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Simple Product 2 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_2" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}2${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/configurable_product_view_1" reference="Runtime Controller" after="-" />
+        <import name="common/customer_section_load" reference="Runtime Controller" after="-" />
+        <import name="common/ajax_review_configurable_product_1" reference="Runtime Controller" after="-" />
+        <import name="common/configurable_product_add_to_cart_1" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Configurable Product 1 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_3" reference="Runtime Controller" after="-" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}3${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="abandoned_cart/cart_clear_cookies" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_customers_grid_1_view_odd_grid_pages_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_customers_grid/get_customer_pages_count" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_customers_grid/odd_page_number" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_customers_grid/admin_browse_customers_grid_1" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_customers_grid_2_view_even_grid_pages_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_customers_grid/get_customer_pages_count" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_customers_grid/get_first_page" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_customers_grid/even_page_number" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_customers_grid/admin_browse_customers_grid_2" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_customers_grid_3_filtering_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_customers_grid/get_filtered_customer_pages_count" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_customers_grid/one_to_pages_filtered_count" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_customers_grid/admin_browse_customers_grid_3" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_customers_grid_4_sorting_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_customers_grid/get_customer_pages_count" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_customers_grid/customers_sort_fields_sort_orders" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_customers_grid/one_to_pages_count" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_customers_grid/admin_browse_customers_grid_4" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_customers_grid_5_filtering_and_sorting_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_customers_grid/get_filtered_customer_pages_count" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_customers_grid/customers_sort_fields" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_customers_grid/one_to_pages_filtered_count" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_customers_grid/admin_browse_customers_grid_5" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_orders_grid_1_view_odd_grid_pages_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_orders_grid/get_order_pages_count" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_orders_grid/odd_page_number" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_orders_grid/admin_browse_orders_grid_1" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_orders_grid_2_view_even_grid_pages_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_orders_grid/get_order_pages_count" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_orders_grid/get_first_page" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_orders_grid/even_page_number" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_orders_grid/admin_browse_orders_grid_2" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_orders_grid_3_filtering_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_orders_grid/get_filtered_order_pages_count" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_orders_grid/one_to_pages_filtered_count" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_orders_grid/admin_browse_orders_grid_3" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_orders_grid_4_sorting_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_orders_grid/get_order_pages_count" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_orders_grid/orders_sort_fields_sort_orders" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_orders_grid/one_to_pages_count" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_orders_grid/admin_browse_orders_grid_4" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_orders_grid_5_filtering_and_sorting_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_orders_grid/get_filtered_order_pages_count" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_orders_grid/orders_sort_fields" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_orders_grid/one_to_pages_filtered_count" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_orders_grid/admin_browse_orders_grid_5" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_products_grid_1_view_odd_grid_pages_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_products_grid/get_product_pages_count" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_products_grid/odd_page_number" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_products_grid/admin_browse_products_grid_1" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_products_grid_2_view_even_grid_pages_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_products_grid/get_product_pages_count" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_products_grid/get_first_page" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_products_grid/even_page_number" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_products_grid/admin_browse_products_grid_2" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_products_grid_3_filtering_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_products_grid/get_filtered_product_pages_count" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_products_grid/one_to_pages_filtered_count" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_products_grid/admin_browse_products_grid_3" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_products_grid_4_sorting_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_products_grid/get_product_pages_count" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_products_grid/product_sort_fields_sort_orders" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_products_grid/one_to_pages_count" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_products_grid/admin_browse_products_grid_4" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_browse_products_grid_5_filtering_and_sorting_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_browse_products_grid/get_filtered_product_pages_count" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_browse_products_grid/product_sort_fields" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_products_grid/one_to_pages_filtered_count" reference="Runtime Controller" after="-" />
+        <import name="admin_browse_products_grid/admin_browse_products_grid_5" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="import_products_tmpl">
+        <import name="import_products/get_arguments" />
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="common/import_validate" reference="Runtime Controller" after="-" />
+        <import name="common/import_save" reference="Runtime Controller" after="-" />
+        <import name="import_products/if_controller" />
+        <import name="import_products/get_arguments_2" reference="If Controller" after="-" />
+        <import name="runtime_controller_nested" reference="If Controller" after="-" />
+        <!--<import name="common/import_validate" reference="Runtime Controller Nested" after="-" />
+        <import name="common/import_save" reference="Runtime Controller Nested" after="-" /> -->
+    </import>
+    <import name="import_customers_tmpl">
+        <import name="import_customers/get_arguments" />
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="common/import_validate" reference="Runtime Controller" after="-" />
+        <import name="common/import_save" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="export_products_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="export_products/export_products" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="export_customers_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="export_customers/export_customers" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_edit_product_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_edit_product/open_admin_catalog_product" reference="Once Only Controller" after="-" />
+        <import name="admin_edit_product/search_simple_product" reference="Once Only Controller" after="-" />
+        <import name="admin_edit_product/search_configurable_product" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_edit_product/admin_edit_product" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_create_product_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_create_product/get_related_product_id" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_create_product/admin_create_product" reference="Runtime Controller"  after="-"/>
+    </import>
+    <import name="admin_edit_order_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="admin_edit_order/open_orders" reference="Once Only Controller" after="-" />
+        <import name="admin_edit_order/search_pending_orders_limit" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_edit_order/admin_edit_order" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="admin_create_order_tmpl">
+        <import name="once_only_controller" />
+        <import name="admin_login/admin_login" reference="Once Only Controller" after="-" />
+        <import name="admin_login/admin_login_submit_form" reference="Once Only Controller" after="-" />
+        <import name="runtime_controller" />
+        <import name="admin_create_order/admin_create_order" reference="Runtime Controller" after="-" />
+    </import>
+    <import name="tear_down" />
+    <import name="view_results_tree" />
+</scenario>

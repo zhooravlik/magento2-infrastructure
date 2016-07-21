@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scenario name="api" title="Api Snapshot">
+    <import name="http_request_default" />
+    <import name="http_header_manager" />
+    <import name="http_cookie_manager" />
+    <import name="setup/setup">
+        <import name="admin_login/assert_logged_in" reference="SetUp - Login Submit Form" before="-"/>
+        <import name="admin_gift_message/enable_gift_messages" />
+    </import>
+
+    <import name="api_snapshot_tmpl">
+        <import name="api/index_setup" />
+        <import name="api/header_manager_before_token" />
+        <import name="api/admin_token_retrieval" />
+        <import name="api/header_manager" />
+        <import name="api/create_attribute_set" />
+        <import name="api/create_attribute_group" />
+        <import name="api/create_attribute" />
+        <import name="api/add_attribute_to_attribute_set" />
+        <import name="api/create_product" />
+        <import name="api/update_product_stock_info" />
+        <import name="api/check_product" />
+        <import name="api/create_product_with_extensible_data_objects" />
+        <import name="api/create_customer" />
+        <import name="api/check_customer" />
+        <import name="api/search_for_product_frontend" />
+        <import name="api/search_for_product_sku" />
+        <import name="api/create_quote" />
+        <import name="api/add_product_to_quote" />
+        <import name="api/check_product_in_quote" />
+        <import name="api/create_guest_cart" />
+        <import name="api/add_product_to_guest_cart" />
+        <import name="api/add_gift_message_to_guest_cart" />
+        <import name="guest_checkout/checkout_estimate_shipping_methods" />
+        <import name="guest_checkout/checkout_billing_shipping_information" />
+        <import name="api/checkout_payment_info_place_order" />
+        <import name="api/check_order" />
+        <import name="api/create_invoice" />
+        <import name="api/create_shipment" />
+    </import>
+    <import name="tear_down">
+        <import name="admin_login/admin_login" />
+        <import name="admin_login/admin_login_submit_form">
+            <import name="admin_login/assert_logged_in" reference="SetUp - Login Submit Form" before="-"/>
+        </import>
+        <import name="admin_gift_message/disable_gift_messages" />
+    </import>
+    <import name="view_results_tree" />
+</scenario>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Even page number: first_page to pages_count" enabled="true">
+      <stringProp name="CounterConfig.start">${first_page}</stringProp>
+      <stringProp name="CounterConfig.end">${pages_count_product}</stringProp>
+      <stringProp name="CounterConfig.incr">2</stringProp>
+      <stringProp name="CounterConfig.name">page_number</stringProp>
+      <stringProp name="CounterConfig.format"></stringProp>
+      <boolProp name="CounterConfig.per_user">true</boolProp>
+      <boolProp name="CounterConfig.reset_on_tg_iteration">true</boolProp>
+    </CounterConfig>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

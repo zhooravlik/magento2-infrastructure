@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Guest Checkout" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">startnextloop</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <intProp name="LoopController.loops">-1</intProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${__javaScript(Math.round(${checkoutByGuest}*${guest_checkout_percent}/100&gt;&gt;0))}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${ramp_period}</stringProp>
+        <longProp name="ThreadGroup.start_time">1304708488000</longProp>
+        <longProp name="ThreadGroup.end_time">1304708488000</longProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <stringProp name="ThreadGroup.duration">${test_duration}</stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

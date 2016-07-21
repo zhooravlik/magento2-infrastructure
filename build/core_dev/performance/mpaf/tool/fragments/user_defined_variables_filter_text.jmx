@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables - Filter text" enabled="true">
+      <collectionProp name="Arguments.arguments">
+        <elementProp name="admin_browse_product_filter_text" elementType="Argument">
+          <stringProp name="Argument.name">admin_browse_product_filter_text</stringProp>
+          <stringProp name="Argument.value">Product</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+        <elementProp name="admin_browse_product_filter_encoded" elementType="Argument">
+          <stringProp name="Argument.name">admin_browse_product_filter_encoded</stringProp>
+          <stringProp name="Argument.value">bmFtZT1Qcm9kdWN0JnByaWNlJTVCY3VycmVuY3klNUQ9VVNE</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+        <elementProp name="admin_browse_orders_filter_text" elementType="Argument">
+          <stringProp name="Argument.name">admin_browse_orders_filter_text</stringProp>
+          <stringProp name="Argument.value">100</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+        <elementProp name="admin_browse_orders_filter_encoded" elementType="Argument">
+          <stringProp name="Argument.name">admin_browse_orders_filter_encoded</stringProp>
+          <stringProp name="Argument.value">cmVhbF9vcmRlcl9pZD0xMDAmY3JlYXRlZF9hdCU1QmxvY2FsZSU1RD1lbl9VUw</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+        <elementProp name="admin_browse_customer_filter_text" elementType="Argument">
+          <stringProp name="Argument.name">admin_browse_customer_filter_text</stringProp>
+          <stringProp name="Argument.value">name</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+        <elementProp name="admin_browse_customer_filter_encoded" elementType="Argument">
+          <stringProp name="Argument.name">admin_browse_customer_filter_encoded</stringProp>
+          <stringProp name="Argument.value">bmFtZT1uYW1lJmN1c3RvbWVyX3NpbmNlJTVCbG9jYWxlJTVEPWVuX1VT</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+        <elementProp name="admin_edit_product_filter" elementType="Argument">
+          <stringProp name="Argument.name">admin_edit_product_filter</stringProp>
+          <stringProp name="Argument.value">dHlwZT1zaW1wbGUmcHJpY2UlNUJjdXJyZW5jeSU1RD1VU0QmdmlzaWJpbGl0eT00</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+        <elementProp name="admin_edit_order_filter" elementType="Argument">
+          <stringProp name="Argument.name">admin_edit_order_filter</stringProp>
+          <stringProp name="Argument.value">Y3JlYXRlZF9hdCU1QmxvY2FsZSU1RD1lbl9VUyZzdGF0dXM9cGVuZGluZw==</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+      </collectionProp>
+    </Arguments>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

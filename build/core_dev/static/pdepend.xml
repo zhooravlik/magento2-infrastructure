@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * PHP Depend configuration
+ * @link http://pdepend.org/documentation/handbook/configuration/index.html
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<symfony:container xmlns:symfony="http://symfony.com/schema/dic/services"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://pdepend.org/schema/dic/pdepend"
+                   xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <config>
+        <cache>
+            <location>{{pdepend_cache_path}}</location>
+        </cache>
+    </config>
+</symfony:container>

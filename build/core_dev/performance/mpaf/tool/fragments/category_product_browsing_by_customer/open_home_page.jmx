@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Open Home Page(Catalog Browsing By Customer)" enabled="true">
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}</stringProp>
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="571386695">&lt;title&gt;Home page&lt;/title&gt;</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">2</intProp>
+      </ResponseAssertion>
+      <hashTree/>
+      <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell PreProcessor" enabled="true">
+        <stringProp name="filename"></stringProp>
+        <stringProp name="parameters"></stringProp>
+        <boolProp name="resetInterpreter">false</boolProp>
+        <stringProp name="script">manager = ctx.getCurrentSampler().getCookieManager();
+for (i=0; i &lt; manager.getCookieCount(); i++) {
+	manager.remove(i);
+}
+System.out.println(&quot;Catalog Browsing By Customer Clear Cookie First&quot;);</stringProp>
+      </BeanShellPreProcessor>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

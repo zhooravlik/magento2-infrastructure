@@ -1,0 +1,6 @@
+logData 0
+navigate http://{host}/customer/account/login/
+exec jQuery('input[name^="login[username]"]').val('user_2@example.com').change();
+exec jQuery('input[name^="login[password]"]').val('123123q').change();
+logData 1
+execAndWait jQuery('#send2').click();

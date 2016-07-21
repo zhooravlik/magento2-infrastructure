@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!--
+/** Apache Ant's build file for js static tests
+ *
+ * {license_notice}
+ *
+ * @copyright  {copyright}
+ * @license    {license_link}
+ */
+-->
+<project name="JS Unit Tests" default="js_static_tests" basedir="../../../../../">
+    <import file="../../util.xml"/>
+    <import file="../jsutil.xml"/>
+    <property environment="env"/>
+
+    <target name="js_unit_tests"
+        description="Run jasmine unit tests for js code">
+
+        <antcall target="_composer_install">
+            <param name="product_root_dir" value="${basedir}"/>
+        </antcall>
+
+        <antcall target="_npm_install">
+            <param name="target_npm_dir" value="${basedir}"/>
+        </antcall>
+
+        <antcall target="_drop_database">
+            <param name="product_root_dir" value="${basedir}"/>
+        </antcall>
+
+        <antcall target="_create_database">
+            <param name="product_root_dir" value="${basedir}"/>
+        </antcall>
+
+        <antcall target="_install-magento">
+        </antcall>
+
+        <antcall target="_generate_static_dir">
+        </antcall>
+
+        <antcall target="_run_unit_tests">
+        </antcall>
+    </target>
+
+    <!--
+        'private' targets
+    -->
+
+    <target name="_run_unit_tests">
+        <exec executable="/usr/bin/grunt" dir="${basedir}" failonerror="true">
+            <arg line="spec"/>
+        </exec>
+    </target>
+  
+</project>

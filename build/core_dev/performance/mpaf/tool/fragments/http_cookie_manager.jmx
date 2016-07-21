@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.6" jmeter="2.11 r1554548">
+  <hashTree>
+    <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">
+      <collectionProp name="CookieManager.cookies">
+        <elementProp name="product_list_limit" elementType="Cookie" testname="product_list_limit">
+          <stringProp name="Cookie.value">30</stringProp>
+          <stringProp name="Cookie.domain">${host}</stringProp>
+          <stringProp name="Cookie.path">/</stringProp>
+          <boolProp name="Cookie.secure">false</boolProp>
+          <longProp name="Cookie.expires">0</longProp>
+          <boolProp name="Cookie.path_specified">true</boolProp>
+          <boolProp name="Cookie.domain_specified">true</boolProp>
+        </elementProp>
+      </collectionProp>
+      <boolProp name="CookieManager.clearEachIteration">true</boolProp>
+    </CookieManager>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

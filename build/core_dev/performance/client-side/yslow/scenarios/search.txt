@@ -1,0 +1,1 @@
+http://{host}/catalogsearch/result/?q=simple

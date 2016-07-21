@@ -1,0 +1,6 @@
+# Files or directories that are part of Magento B2B and may be not included in other edition
+# See also no-edition.txt and internal.txt for items that are not part of any edition
+#
+
+LICENSE_B2B.txt
+{app/code,dev/tests/{integration,unit,api-functional}/testsuite}/Magento/TestSample

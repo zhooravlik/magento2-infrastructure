@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResults version="1.2">
+<httpSample t="1905" lt="459" ts="1386171140018" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="51248" ng="1" na="1">
+  <httpSample t="459" lt="459" ts="1386171140018" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="726" ng="0" na="0"/>
+  <httpSample t="820" lt="820" ts="1386171140487" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1490" ng="0" na="0"/>
+  <httpSample t="416" lt="416" ts="1386171141308" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1940" ng="0" na="0"/>
+  <httpSample t="199" lt="142" ts="1386171141724" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="47092" ng="0" na="0"/>
+</httpSample>
+<httpSample t="1339" lt="324" ts="1386171142940" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="51240" ng="1" na="1">
+  <httpSample t="324" lt="324" ts="1386171142940" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="725" ng="0" na="0"/>
+  <httpSample t="451" lt="451" ts="1386171143264" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1491" ng="0" na="0"/>
+  <httpSample t="431" lt="431" ts="1386171143715" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1941" ng="0" na="0"/>
+  <httpSample t="132" lt="109" ts="1386171144147" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="47083" ng="0" na="0"/>
+</httpSample>
+<httpSample t="1271" lt="358" ts="1386171145284" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="51437" ng="1" na="1">
+  <httpSample t="358" lt="358" ts="1386171145284" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="725" ng="0" na="0"/>
+  <httpSample t="373" lt="373" ts="1386171145642" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1491" ng="0" na="0"/>
+  <httpSample t="363" lt="363" ts="1386171146015" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1941" ng="0" na="0"/>
+  <httpSample t="177" lt="153" ts="1386171146378" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="47280" ng="0" na="0"/>
+</httpSample>
+<httpSample t="1734" lt="324" ts="1386171147560" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="53741" ng="1" na="1">
+  <httpSample t="324" lt="324" ts="1386171147560" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="725" ng="0" na="0"/>
+  <httpSample t="430" lt="430" ts="1386171147885" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1491" ng="0" na="0"/>
+  <httpSample t="392" lt="392" ts="1386171148315" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1941" ng="0" na="0"/>
+  <httpSample t="586" lt="562" ts="1386171148708" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="49584" ng="0" na="0"/>
+</httpSample>
+<httpSample t="1466" lt="391" ts="1386171150298" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="53575" ng="1" na="1">
+  <httpSample t="391" lt="391" ts="1386171150298" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="725" ng="0" na="0"/>
+  <httpSample t="355" lt="355" ts="1386171150689" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1491" ng="0" na="0"/>
+  <httpSample t="389" lt="389" ts="1386171151044" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1941" ng="0" na="0"/>
+  <httpSample t="331" lt="323" ts="1386171151433" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="49418" ng="0" na="0"/>
+</httpSample>
+<httpSample t="1320" lt="327" ts="1386171152768" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="51253" ng="1" na="1">
+  <httpSample t="327" lt="327" ts="1386171152768" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="725" ng="0" na="0"/>
+  <httpSample t="452" lt="452" ts="1386171153095" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1491" ng="0" na="0"/>
+  <httpSample t="376" lt="376" ts="1386171153548" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1941" ng="0" na="0"/>
+  <httpSample t="164" lt="151" ts="1386171153924" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="47096" ng="0" na="0"/>
+</httpSample>
+<httpSample t="1289" lt="375" ts="1386171155093" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="51233" ng="1" na="1">
+  <httpSample t="375" lt="375" ts="1386171155093" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="725" ng="0" na="0"/>
+  <httpSample t="385" lt="385" ts="1386171155468" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1491" ng="0" na="0"/>
+  <httpSample t="384" lt="384" ts="1386171155853" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1941" ng="0" na="0"/>
+  <httpSample t="144" lt="135" ts="1386171156238" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="47076" ng="0" na="0"/>
+</httpSample>
+<httpSample t="1318" lt="357" ts="1386171157387" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="51395" ng="1" na="1">
+  <httpSample t="357" lt="357" ts="1386171157387" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="725" ng="0" na="0"/>
+  <httpSample t="401" lt="401" ts="1386171157744" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1491" ng="0" na="0"/>
+  <httpSample t="416" lt="416" ts="1386171158146" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1941" ng="0" na="0"/>
+  <httpSample t="143" lt="134" ts="1386171158562" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="47238" ng="0" na="0"/>
+</httpSample>
+<httpSample t="1356" lt="321" ts="1386171159710" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="51311" ng="1" na="1">
+  <httpSample t="321" lt="321" ts="1386171159710" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="725" ng="0" na="0"/>
+  <httpSample t="430" lt="430" ts="1386171160032" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1491" ng="0" na="0"/>
+  <httpSample t="488" lt="488" ts="1386171160462" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1941" ng="0" na="0"/>
+  <httpSample t="115" lt="110" ts="1386171160951" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="47154" ng="0" na="0"/>
+</httpSample>
+<httpSample t="1294" lt="343" ts="1386171162071" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="51301" ng="1" na="1">
+  <httpSample t="343" lt="343" ts="1386171162071" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="725" ng="0" na="0"/>
+  <httpSample t="460" lt="460" ts="1386171162415" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1491" ng="0" na="0"/>
+  <httpSample t="383" lt="383" ts="1386171162875" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1941" ng="0" na="0"/>
+  <httpSample t="107" lt="99" ts="1386171163258" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="47144" ng="0" na="0"/>
+</httpSample>
+<httpSample t="1373" lt="309" ts="1386171164369" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="51457" ng="1" na="1">
+  <httpSample t="309" lt="309" ts="1386171164369" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="725" ng="0" na="0"/>
+  <httpSample t="379" lt="379" ts="1386171164678" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1491" ng="0" na="0"/>
+  <httpSample t="375" lt="375" ts="1386171165058" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1941" ng="0" na="0"/>
+  <httpSample t="309" lt="298" ts="1386171165433" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="47300" ng="0" na="0"/>
+</httpSample>
+<httpSample t="1266" lt="312" ts="1386171166747" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="51315" ng="1" na="1">
+  <httpSample t="312" lt="312" ts="1386171166747" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="725" ng="0" na="0"/>
+  <httpSample t="345" lt="345" ts="1386171167059" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1491" ng="0" na="0"/>
+  <httpSample t="483" lt="483" ts="1386171167404" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1941" ng="0" na="0"/>
+  <httpSample t="126" lt="118" ts="1386171167887" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="47158" ng="0" na="0"/>
+</httpSample>
+<httpSample t="1266" lt="361" ts="1386171169017" s="true" lb="PayPal Home Page" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="51164" ng="1" na="1">
+  <httpSample t="361" lt="361" ts="1386171169017" s="true" lb="http://www.paypal.com/" rc="301" rm="Moved Permanently" tn="" dt="text" by="725" ng="0" na="0"/>
+  <httpSample t="381" lt="381" ts="1386171169379" s="true" lb="https://www.paypal.com/" rc="301" rm="Moved Permanently" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1491" ng="0" na="0"/>
+  <httpSample t="415" lt="415" ts="1386171169760" s="true" lb="https://www.paypal.com/cgi-bin/webscr?cmd=_home&amp;country_lang.x=true" rc="302" rm="Found" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="1941" ng="0" na="0"/>
+  <httpSample t="107" lt="98" ts="1386171170175" s="true" lb="https://www.paypal.com/home" rc="200" rm="OK" tn="jp@gc - Ultimate Thread Group 1-1" dt="text" by="47007" ng="0" na="0"/>
+</httpSample>
+
+</testResults>

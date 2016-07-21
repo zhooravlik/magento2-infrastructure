@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <BeanShellSampler guiclass="BeanShellSamplerGui" testclass="BeanShellSampler" testname="Get Related Product Id" enabled="true">
+      <stringProp name="TestPlan.comments">Passing arguments between threads</stringProp>
+      <stringProp name="BeanShellSampler.query">import org.apache.jmeter.samplers.SampleResult;
+
+product = props.get(&quot;simple_products_list&quot;).get(0);
+vars.put(&quot;related_product_id&quot;, product.get(&quot;id&quot;));
+vars.put(&quot;related_product_post_param_value&quot;, product.get(&quot;id&quot;)+&quot;=cG9zaXRpb249&quot;)</stringProp>
+      <stringProp name="BeanShellSampler.filename"></stringProp>
+      <stringProp name="BeanShellSampler.parameters"></stringProp>
+      <boolProp name="BeanShellSampler.resetInterpreter">true</boolProp>
+    </BeanShellSampler>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

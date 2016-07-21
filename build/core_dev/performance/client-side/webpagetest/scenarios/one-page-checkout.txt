@@ -1,0 +1,10 @@
+logData 0
+navigate http://{host}/simple-product-120.html
+clickAndWait title=Add to Cart
+navigate http://{host}/simple-product-150.html
+clickAndWait title=Add to Cart
+navigate http://{host}/configurable-product-30.html
+exec jQuery('select[name^="super_attribute"]').val(12);
+clickAndWait title=Add to Cart
+logData 1
+navigate http://{host}/checkout/

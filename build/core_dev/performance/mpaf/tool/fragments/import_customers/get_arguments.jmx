@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Get arguments" enabled="true">
+      <boolProp name="resetInterpreter">false</boolProp>
+      <stringProp name="parameters"></stringProp>
+      <stringProp name="filename"></stringProp>
+      <stringProp name="script">vars.put(&quot;entity&quot;, &quot;customer&quot;);
+String behavior = &quot;${adminImportCustomerBehavior}&quot;;
+vars.put(&quot;adminImportBehavior&quot;, behavior);
+String filepath = &quot;${adminImportCustomerFilePath}&quot;;
+vars.put(&quot;adminImportFilePath&quot;, filepath);  </stringProp>
+    </BeanShellPreProcessor>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

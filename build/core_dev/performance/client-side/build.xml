@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Apache Ant's build file for core development performance benchmarking
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="Core Development Client-Side Performance Benchmarking" basedir="." xmlns:ac="antlib:net.sf.antcontrib">
+    <property environment="env"/>
+    <target name="deploy" depends="cleanup,checkout,install-magento,deploy-static-files" description="Install Magento on webnode"/>
+
+    <target name="cleanup" depends="_bootstrap" description="Cleanup environment">
+        <antcall target="_remote-drop-database"/>
+    </target>
+
+    <target name="checkout" depends="_bootstrap" description="Checkout source code to the webnode">
+        <antcall target="_rsync">
+            <param name="server_ip" value="${env.webnode_initial}"/>
+        </antcall>
+        <antcall target="_composer_install">
+            <param name="product_root_dir" value="${env.magento_dir}"/>
+            <param name="server_ip" value="${env.webnode_initial}"/>
+        </antcall>
+    </target>
+
+    <target name="_composer_install" description="Run composer install">
+        <sshexec host="${server_ip}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="cd ${product_root_dir}; composer install --no-interaction;"/>
+    </target>
+
+    <target name="install-clean-magento" depends="_bootstrap,_prepare-magento" description="Install Magento application on remote server">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="php -f ${env.magento_dir}/bin/magento setup:install --language='en_US' --timezone='America/Los_Angeles' --currency='USD' --db-host='${env.mysql_host}' --db-name='${env.mysql_database}' --db-user='${env.mysql_user}' --db-password='${env.mysql_password}' --use-secure='0' --use-secure-admin='0' --use-rewrites='1' --admin-lastname='Admin' --admin-firstname='Admin' --admin-email='admin@example.com' --admin-use-security-key='0' --base-url='http://${env.base_url}' --base-url-secure='https://${env.secure_base_url}' --backend-frontname='backend' --admin-user='admin' --admin-password='123123q' 2>&amp;1"/>
+    </target>
+
+    <target name="install-magento" depends="_bootstrap,_prepare-magento,_remote-create-database" description="Install/Repair Magento Application on defined fixture configuration">
+        <antcall target="install-clean-magento"/>
+
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="cd ${env.magento_dir}/setup/src/Magento/Setup/Fixtures/; cp tax_rates.csv temp.csv; head -5 temp.csv > tax_rates.csv;"/>
+
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="php -f ${env.magento_dir}/bin/magento setup:performance:generate-fixtures ${env.magento_dir}/dev/build/core_dev/performance/client-side/performance-toolkit-profile/small.xml"/>
+    </target>
+
+    <target name="deploy-static-files" description="Deploying static assets for production mode">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="php -f ${env.magento_dir}/bin/magento setup:static-content:deploy"/>
+    </target>
+
+    <target name="_bootstrap" description="Check whether common parameters is set">
+        <fail unless="env.webnode_initial" message="Variable 'webnode_initial' must be defined"/>
+        <fail unless="env.webnode_login" message="Variable 'webnode_login' must be defined"/>
+        <fail unless="env.webnode_password" message="Variable 'webnode_password' must be defined"/>
+        <fail unless="env.magento_dir" message="Variable 'magento_dir' must be defined"/>
+    </target>
+
+    <target name="_prepare-magento" description="Prepare Magento for installation">
+        <antcall target="_remote-code-prepare">
+            <param name="server_ip" value="${env.webnode_initial}"/>
+        </antcall>
+    </target>
+
+    <target name="_remote-code-prepare" description="Set permissions for magento directories and files on remote machine">
+        <sshexec host="${server_ip}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="chmod a+w -R ${env.magento_dir}/app/etc ${env.magento_dir}/pub/media ${env.magento_dir}/pub/static ${env.magento_dir}/var"/>
+    </target>
+
+    <target name="_rsync" description="Upload code to remote machine">
+        <exec executable="rsync" failonerror="true">
+            <arg value="-rz"/>
+            <arg value="--delete"/>
+            <arg value="--exclude=/.git"/>
+            <arg value="--exclude=/vendor"/>
+            <arg value="${user.dir}/"/>
+            <arg value="${env.webnode_login}@${server_ip}:${env.magento_dir}"/>
+        </exec>
+    </target>
+
+    <target name="_remote-drop-database" depends="_database-credentials-check" description="Drop specified MySQL database">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="mysql -u${env.mysql_user} -p${env.mysql_password} -e 'DROP DATABASE IF EXISTS ${env.mysql_database};'"/>
+    </target>
+
+    <target name="_remote-create-database" depends="_database-credentials-check" description="Create specified MySQL database">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="mysql -u${env.mysql_user} -p${env.mysql_password} -e 'CREATE DATABASE ${env.mysql_database};'"/>
+    </target>
+
+    <target name="_database-credentials-check" description="Check whether common database parameters is set">
+        <fail unless="env.mysql_host" message="Variable 'mysql_host' must be defined"/>
+        <fail unless="env.mysql_user" message="Variable 'mysql_user' must be defined"/>
+        <fail unless="env.mysql_password" message="Variable 'mysql_password' must be defined"/>
+        <fail unless="env.mysql_database" message="Variable 'mysql_database' must be defined"/>
+    </target>
+</project>

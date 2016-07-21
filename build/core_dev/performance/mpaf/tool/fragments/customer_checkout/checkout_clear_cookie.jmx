@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="Clear Cookie" enabled="true">
+      <boolProp name="resetInterpreter">false</boolProp>
+      <stringProp name="parameters"></stringProp>
+      <stringProp name="filename"></stringProp>
+      <stringProp name="script">curSampler = ctx.getCurrentSampler();
+if(curSampler.getName().contains(&quot;Checkout success&quot;)) {
+	manager = curSampler.getCookieManager();
+	manager.clear();
+	log.info(&quot;clearing cookies&quot;);
+	System.out.println(&quot;${testLabel} Clear Cookie Last&quot;);
+}
+</stringProp>
+    </BeanShellPostProcessor>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

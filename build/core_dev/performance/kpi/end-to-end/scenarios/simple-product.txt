@@ -1,0 +1,1 @@
+navigate http://{host}/simple-product-120.html

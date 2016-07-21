@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="API - Add attribute to attribute set" enabled="true">
+      <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">false</boolProp>
+            <stringProp name="Argument.value">{&#xd;
+    &quot;attributeSetId&quot;: &quot;${attribute_set_id}&quot;,&#xd;
+    &quot;attributeGroupId&quot;: &quot;${attribute_group_id}&quot;,&#xd;
+    &quot;attributeCode&quot;: &quot;${attribute_code}&quot;,&#xd;
+    &quot;sortOrder&quot;: 3&#xd;
+}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}rest/default/V1/products/attribute-sets/attributes</stringProp>
+      <stringProp name="HTTPSampler.method">POST</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <com.atlantbh.jmeter.plugins.jsonutils.jsonpathassertion.JSONPathAssertion guiclass="com.atlantbh.jmeter.plugins.jsonutils.jsonpathassertion.gui.JSONPathAssertionGui" testclass="com.atlantbh.jmeter.plugins.jsonutils.jsonpathassertion.JSONPathAssertion" testname="Assert response is not null" enabled="true">
+        <stringProp name="JSON_PATH">$</stringProp>
+        <stringProp name="EXPECTED_VALUE">(\d+)</stringProp>
+        <boolProp name="JSONVALIDATION">true</boolProp>
+        <boolProp name="EXPECT_NULL">false</boolProp>
+        <boolProp name="INVERT">false</boolProp>
+      </com.atlantbh.jmeter.plugins.jsonutils.jsonpathassertion.JSONPathAssertion>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

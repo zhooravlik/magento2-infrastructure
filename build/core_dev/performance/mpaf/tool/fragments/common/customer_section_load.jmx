@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Customer Section Load${__property(activeAdminThread)}(${testLabel})" enabled="true">
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="sections" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">customer</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">sections</stringProp>
+          </elementProp>
+          <elementProp name="update_section_id" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">false</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">update_section_id</stringProp>
+          </elementProp>
+          <elementProp name="_" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">false</boolProp>
+            <stringProp name="Argument.value">${__time(yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSSZ)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">_</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}customer/section/load/</stringProp>
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="1393473040">\&quot;customer\&quot;:</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">2</intProp>
+      </ResponseAssertion>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

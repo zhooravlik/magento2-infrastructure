@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Apache Ant's build file for the nmon builds.
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="ant-nmon" default="all">
+	<description>This ANT script will clean, execute and collect nmon 
+		scripts on 1 remote environments. Note that we assume the
+		script will be invoked from a Bamboo build task that sets several
+		environment variables including:
+
+		- Bamboo BUILD_TAG
+		- Bamboo BUILD_ID
+		- Bamboo Workspace
+
+		We expect to be given several parameters from the calling bamboo job
+		including:
+		- nmon.frequency: frequency of the nmon samples
+		- nmon.count: number of samples to take
+		- test.duration: duration to monitor stage, should by frequency * count
+		- stage.host: remote host to enable monitoring
+		- stage.user: user that we'll use to remotely login and kick-off the nmon job	
+	</description>
+
+	<property environment="env"/>
+	
+	<!-- enables use of the ant contrib task -->
+	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
+
+	<property name="remote.resultspath" value="data"/>
+	<property name="keyfile" value="c:\Tools\key\id-openssh-dsa.ppk"/>
+
+	<target name="all" depends="startRemoteMonitors, pauseForMonitoring, copyAndCleanRemoteFiles"></target>
+       
+	<target name="init">
+		<tstamp>
+			<format property="current.time" pattern="yyyyMMdd_HHmmss"/>
+		</tstamp>	
+		<property name="test.workspace" value="${env.WORKSPACE}"/>
+		<property name="test.identifier" value="${env.BUILD_TAG}"/>
+		<property name="resultspath" value="results/${test.identifier}"/>
+	</target>
+
+	<target name="printEnvironment" depends="init">
+		<echo message="Bamboo workspace: ${env.WORKSPACE}"/>
+		<echo message="Bamboo Build ID: ${env.BUILD_ID}"/>
+		<echo message="Bamboo Build Tag: ${env.BUILD_TAG}"/>
+		<echo message="Test.prefix: ${test.prefix}"/>
+    	<echo message="Job directory: ${env.WORKSPACE}../../jobs/${env.JOB_NAME}"/>
+		<echo message="Build data: ${env.WORKSPACE}../../jobs/${env.JOB_NAME}/build/${env.BUILD_ID}"/>
+		<echo message="NMON Frequency / Count: ${nmon.frequency} / ${nmon.count}"/>
+	</target>
+
+	<target name="startRemoteMonitors" depends="init, printEnvironment, monitorRemoteHost"/>
+	<target name="copyAndCleanRemoteFiles" depends="archiveNmonArtifacts, remoteClean"/>
+	<target name="remoteClean" depends="cleanRemoteNmonHost"/>
+
+
+	<!-- ====================== -->
+	<!-- Remote host Monitoring Target  -->
+	<!-- ====================== -->
+	<target name="pauseForMonitoring" depends="init">
+		<echo message="  [pauseForMonitoring] Pause for monitoring: ${test.duration}"/>
+		<sleep seconds="${test.duration}"/>
+	</target>
+
+	<target name="monitorRemoteHost" depends="init" if="stage.host">
+		<echo message="starting nmon on host ${stage.host}"/>
+		<sshexec host="${stage.host}"
+			 keyfile="${keyfile}"
+			 trust="yes"
+			 username="${stage.user}"
+			 command="${nmon.home}/run.sh ${nmon.frequency} ${nmon.count} ${remote.resultspath}/${test.identifier} ${test.identifier}.nmon"/>
+	</target>
+
+	<target name="cleanRemoteNmonHost" depends="init" if="stage.host">
+		<sshexec host="${stage.host}"
+			 trust="yes"
+			 username="${stage.user}"
+			 keyfile="${keyfile}"
+			 command="${nmon.home}/clean.sh ${remote.resultspath}/${test.identifier}"/>
+	 </target>
+
+	 <target name="resultspathExists" depends="init">
+		 <mkdir dir="${resultspath}" />
+	 </target>
+
+	 <target name="copyRemoteServerFiles" depends="init, resultspathExists" if="stage.host">
+		<echo message="scp ${stage.user}@${stage.host}:${nmon.home}/${remote.resultspath}/${test.identifier}/* to ${resultspath}"/>
+
+		<scp file="${stage.user}@${stage.host}:${nmon.home}/${remote.resultspath}/${test.identifier}/*" 
+			todir="${resultspath}" trust="yes" keyfile="${keyfile}"/>
+	 	
+	 	<sleep seconds="5"/>
+	</target>
+
+	<target name="archiveNmonArtifacts" depends="copyRemoteServerFiles">
+		<echo message="Copying NMON results ${resultspath} to ${test.workspace}"/>
+		<copy todir="${test.workspace}">
+			<fileset dir="results" includes="${test.identifier}/*"/>
+		</copy>
+	</target>
+</project>
+
+
+

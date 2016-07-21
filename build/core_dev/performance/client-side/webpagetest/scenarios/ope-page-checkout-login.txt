@@ -1,0 +1,13 @@
+logData 0
+navigate http://{host}/simple-product-120.html
+clickAndWait title=Add to Cart
+navigate http://{host}/simple-product-150.html
+clickAndWait title=Add to Cart
+navigate http://{host}/configurable-product-30.html
+exec jQuery('select[name^="super_attribute"]').val(12);
+clickAndWait title=Add to Cart
+navigate http://{host}/checkout/
+setValue id=login-email user_1@example.com
+setValue id=login-password 123123q
+logData 1
+clickAndWait type=submit

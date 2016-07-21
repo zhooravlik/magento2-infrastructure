@@ -1,0 +1,6 @@
+<!--
+1. Run YSlow
+2. Grab YSlow reports to ./results/
+3. Parse YSlow reports
+4. Write parsed results to ./results/
+-->

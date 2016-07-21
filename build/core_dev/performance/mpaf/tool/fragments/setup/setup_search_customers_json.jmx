@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="SetUp - Search Customers" enabled="true">
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="namespace" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">customer_listing</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">namespace</stringProp>
+          </elementProp>
+          <elementProp name="search" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">search</stringProp>
+          </elementProp>
+          <elementProp name="filters[placeholder]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">customer_since[locale]=en_US&amp;website_id=1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">filters[placeholder]</stringProp>
+          </elementProp>
+          <elementProp name="paging[pageSize]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">${customers_page_size}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">paging[pageSize]</stringProp>
+          </elementProp>
+          <elementProp name="paging[current]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">paging[current]</stringProp>
+          </elementProp>
+          <elementProp name="sorting[field]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">entity_id</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">sorting[field]</stringProp>
+          </elementProp>
+          <elementProp name="sorting[direction]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">asc</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">sorting[direction]</stringProp>
+          </elementProp>
+          <elementProp name="isAjax" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">true</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">isAjax</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}${admin_path}/mui/index/render/</stringProp>
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <com.atlantbh.jmeter.plugins.jsonutils.jsonpathassertion.JSONPathAssertion guiclass="com.atlantbh.jmeter.plugins.jsonutils.jsonpathassertion.gui.JSONPathAssertionGui" testclass="com.atlantbh.jmeter.plugins.jsonutils.jsonpathassertion.JSONPathAssertion" testname="Assert total records is not 0" enabled="true">
+        <stringProp name="JSON_PATH">$.totalRecords</stringProp>
+        <stringProp name="EXPECTED_VALUE">0</stringProp>
+        <boolProp name="JSONVALIDATION">true</boolProp>
+        <boolProp name="EXPECT_NULL">false</boolProp>
+        <boolProp name="INVERT">true</boolProp>
+      </com.atlantbh.jmeter.plugins.jsonutils.jsonpathassertion.JSONPathAssertion>
+      <hashTree/>
+      <com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.JSONPathExtractor guiclass="com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.gui.JSONPathExtractorGui" testclass="com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.JSONPathExtractor" testname="Extract customer emails" enabled="true">
+        <stringProp name="VAR">customer_emails</stringProp>
+        <stringProp name="JSONPATH">$.items[*].email</stringProp>
+        <stringProp name="DEFAULT"></stringProp>
+        <stringProp name="VARIABLE"></stringProp>
+        <stringProp name="SUBJECT">BODY</stringProp>
+      </com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.JSONPathExtractor>
+      <hashTree/>
+      <com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.JSONPathExtractor guiclass="com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.gui.JSONPathExtractorGui" testclass="com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.JSONPathExtractor" testname="Extract customer ids" enabled="true">
+        <stringProp name="VAR">customer_ids</stringProp>
+        <stringProp name="JSONPATH">$.items[*].entity_id</stringProp>
+        <stringProp name="DEFAULT"></stringProp>
+        <stringProp name="VARIABLE"></stringProp>
+        <stringProp name="SUBJECT">BODY</stringProp>
+      </com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.JSONPathExtractor>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

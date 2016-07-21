@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.6" jmeter="2.11 r1554548">
+  <hashTree>
+    <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Random Variable 2" enabled="true">
+      <stringProp name="variableName">rv2</stringProp>
+      <stringProp name="outputFormat">&apos;.&apos;</stringProp>
+      <stringProp name="minimumValue">1</stringProp>
+      <stringProp name="maximumValue">999999</stringProp>
+      <stringProp name="randomSeed">2</stringProp>
+      <boolProp name="perThread">true</boolProp>
+    </RandomVariableConfig>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

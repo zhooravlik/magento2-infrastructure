@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <PostThreadGroup guiclass="PostThreadGroupGui" testclass="PostThreadGroup" testname="tearDown Thread Group" enabled="true">
+      <stringProp name="ThreadGroup.on_sample_error">stoptest</stringProp>
+      <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+        <boolProp name="LoopController.continue_forever">false</boolProp>
+        <stringProp name="LoopController.loops">1</stringProp>
+      </elementProp>
+      <stringProp name="ThreadGroup.num_threads">1</stringProp>
+      <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+      <longProp name="ThreadGroup.start_time">1395324075000</longProp>
+      <longProp name="ThreadGroup.end_time">1395324075000</longProp>
+      <boolProp name="ThreadGroup.scheduler">false</boolProp>
+      <stringProp name="ThreadGroup.duration"></stringProp>
+      <stringProp name="ThreadGroup.delay"></stringProp>
+    </PostThreadGroup>
+    <hashTree>
+      <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller: Dashboard enabled?" enabled="true">
+        <stringProp name="IfController.condition">&quot;${dashboard_enabled}&quot; == &quot;1&quot;</stringProp>
+        <boolProp name="IfController.evaluateAll">false</boolProp>
+      </IfController>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Trigger End Event" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="environment" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">${__property(environment)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">environment</stringProp>
+              </elementProp>
+              <elementProp name="startTime" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">${start_time}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">startTime</stringProp>
+              </elementProp>
+              <elementProp name="endTime" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">${__time(yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSSZ)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">endTime</stringProp>
+              </elementProp>
+              <elementProp name="stats_server" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">${redis_host}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">stats_server</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain"></stringProp>
+          <stringProp name="HTTPSampler.port"></stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">${base_path}DeploymentEvent.php</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert curl call was successful" enabled="true">
+          <collectionProp name="Asserion.test_strings">
+            <stringProp name="185669135">Errors:</stringProp>
+          </collectionProp>
+          <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+          <boolProp name="Assertion.assume_success">false</boolProp>
+          <intProp name="Assertion.test_type">6</intProp>
+        </ResponseAssertion>
+        <hashTree/>
+      </hashTree>
+      <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">
+        <collectionProp name="CookieManager.cookies">
+          <elementProp name="product_list_limit" elementType="Cookie" testname="product_list_limit">
+            <stringProp name="Cookie.value">30</stringProp>
+            <stringProp name="Cookie.domain">${host}</stringProp>
+            <stringProp name="Cookie.path">/</stringProp>
+            <boolProp name="Cookie.secure">false</boolProp>
+            <longProp name="Cookie.expires">0</longProp>
+            <boolProp name="Cookie.path_specified">true</boolProp>
+            <boolProp name="Cookie.domain_specified">true</boolProp>
+          </elementProp>
+        </collectionProp>
+        <boolProp name="CookieManager.clearEachIteration">true</boolProp>
+      </CookieManager>
+      <hashTree/>
+      <BeanShellSampler guiclass="BeanShellSamplerGui" testclass="BeanShellSampler" testname="SetUp - BeanShell Sampler: Clear properties" enabled="true">
+        <stringProp name="BeanShellSampler.query">props.remove(&quot;category_url_key&quot;);
+props.remove(&quot;category_name&quot;);
+props.remove(&quot;simple_products_list&quot;);
+props.remove(&quot;configurable_products_list&quot;);
+props.remove(&quot;users&quot;);
+props.remove(&quot;customer_emails_list&quot;);</stringProp>
+        <stringProp name="BeanShellSampler.filename"></stringProp>
+        <stringProp name="BeanShellSampler.parameters"></stringProp>
+        <boolProp name="BeanShellSampler.resetInterpreter">false</boolProp>
+      </BeanShellSampler>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

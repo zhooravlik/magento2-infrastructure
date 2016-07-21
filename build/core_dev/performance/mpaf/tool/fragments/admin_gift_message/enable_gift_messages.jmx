@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Admin - Enable Gift Message" enabled="true">
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="form_key" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">false</boolProp>
+            <stringProp name="Argument.value">${admin_form_key}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">form_key</stringProp>
+          </elementProp>
+          <elementProp name="groups[gift_options][fields][allow_order][value]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">false</boolProp>
+            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">groups[gift_options][fields][allow_order][value]</stringProp>
+          </elementProp>
+          <elementProp name="groups[gift_options][fields][allow_items][value]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">false</boolProp>
+            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">groups[gift_options][fields][allow_items][value]</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}${admin_path}/admin/system_config/save/section/sales/</stringProp>
+      <stringProp name="HTTPSampler.method">POST</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">true</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Gift Messages on Order Level and for Order Items" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="-610941653">&quot;select-groups-gift-options-fields-allow-order-value&quot; &gt;[^&lt;]&lt;option value=&quot;1&quot; selected</stringProp>
+          <stringProp name="-669865863">&quot;select-groups-gift-options-fields-allow-items-value&quot; &gt;[^&lt;]&lt;option value=&quot;1&quot; selected</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">2</intProp>
+      </ResponseAssertion>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

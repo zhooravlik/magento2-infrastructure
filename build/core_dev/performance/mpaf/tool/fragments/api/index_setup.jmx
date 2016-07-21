@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <BeanShellSampler guiclass="BeanShellSamplerGui" testclass="BeanShellSampler" testname="Index Setup" enabled="true">
+      <stringProp name="BeanShellSampler.query">starting_idx = Integer.parseInt(vars.get(&quot;starting_index&quot;));
+log.info(&quot;starting_index: &quot; + starting_idx);
+
+int currentThreadNum = ctx.getThreadNum();
+
+String siterator = vars.get(&quot;threadIterator_&quot; + currentThreadNum.toString());
+int iterator;
+if(siterator == null){
+	iterator = 1;
+	vars.put(&quot;threadIterator_&quot; + currentThreadNum.toString() , &quot;1&quot;);
+} else {
+	iterator = Integer.parseInt(siterator);
+	iterator ++;
+	vars.put(&quot;threadIterator_&quot; + currentThreadNum.toString() , iterator.toString());
+}
+
+idx = iterator + starting_idx;
+log.info(&quot;idx: &quot; + idx);
+
+vars.put(&quot;index&quot;,idx.toString());
+vars.put(&quot;testLabel&quot;, &quot;Api Snapshot&quot;);</stringProp>
+      <stringProp name="BeanShellSampler.filename"></stringProp>
+      <stringProp name="BeanShellSampler.parameters"></stringProp>
+      <boolProp name="BeanShellSampler.resetInterpreter">true</boolProp>
+    </BeanShellSampler>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

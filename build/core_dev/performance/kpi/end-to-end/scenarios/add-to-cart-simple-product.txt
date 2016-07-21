@@ -1,0 +1,4 @@
+logData 0
+navigate http://{host}/simple-product-120.html
+logData 1
+clickAndWait title=Add to Cart

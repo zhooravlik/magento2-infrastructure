@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.6" jmeter="2.11 r1554548">
+  <hashTree>
+    <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+      <collectionProp name="HeaderManager.headers">
+        <elementProp name="Accept-Language" elementType="Header">
+          <stringProp name="Header.name">Accept-Language</stringProp>
+          <stringProp name="Header.value">en-US,en;q=0.5</stringProp>
+        </elementProp>
+        <elementProp name="Accept" elementType="Header">
+          <stringProp name="Header.name">Accept</stringProp>
+          <stringProp name="Header.value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</stringProp>
+        </elementProp>
+        <elementProp name="User-Agent" elementType="Header">
+          <stringProp name="Header.name">User-Agent</stringProp>
+          <stringProp name="Header.value">Mozilla/5.0 (Windows NT 6.1; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0</stringProp>
+        </elementProp>
+        <elementProp name="Accept-Encoding" elementType="Header">
+          <stringProp name="Header.name">Accept-Encoding</stringProp>
+          <stringProp name="Header.value">gzip, deflate</stringProp>
+        </elementProp>
+      </collectionProp>
+    </HeaderManager>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

@@ -1,0 +1,32 @@
+{
+    "repositories": [
+        {
+            "type": "git",
+            "url": "{{mtf_repository}}"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/giorgiosironi/phpunit-selenium.git"
+        }
+    ],
+    "require": {
+        "magento/mtf": "{{mtf_version}}",
+        "php": ">=5.4.0",
+        "phpunit/phpunit": "4.1.0",
+        "phpunit/phpunit-selenium": ">=1.2"
+    },
+    "suggest": {
+        "facebook/webdriver": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Magento\\": [
+                "testsuites/Magento/",
+                "generated/Magento/",
+                "lib/Magento/",
+                "tests/app/Magento/",
+                "tests/design/Magento/"
+            ]
+        }
+    }
+}

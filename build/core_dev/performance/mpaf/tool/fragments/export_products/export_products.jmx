@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Export Products" enabled="true">
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="form_key" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">form_key</stringProp>
+            <stringProp name="Argument.value">${admin_form_key}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="attribute_code" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">attribute_code</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[allow_message][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[allow_message][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[allow_open_amount]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[allow_open_amount]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[category_ids]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[category_ids]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[configurable_variations]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[configurable_variations]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[cost][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[cost][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[country_of_manufacture]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[country_of_manufacture]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[created_at]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[created_at]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[custom_design]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[custom_design]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[custom_design_from][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[custom_design_from][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[custom_design_to][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[custom_design_to][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[custom_layout_update]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[custom_layout_update]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[description]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[description]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[email_template]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[email_template]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[gallery]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[gallery]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[gift_message_available]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[gift_message_available]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[gift_wrapping_available]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[gift_wrapping_available]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[gift_wrapping_price][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[gift_wrapping_price][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[giftcard_amounts][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[giftcard_amounts][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[giftcard_type]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[giftcard_type]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[group_price][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[group_price][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[has_options]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[has_options]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[image]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[image]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[image_label]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[image_label]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[is_redeemable][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[is_redeemable][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[is_returnable]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[is_returnable]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[lifetime][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[lifetime][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[links_exist][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[links_exist][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[links_purchased_separately][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[links_purchased_separately][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[links_title]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[links_title]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[media_gallery]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[media_gallery]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[meta_description]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[meta_description]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[meta_keyword]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[meta_keyword]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[meta_title]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[meta_title]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[minimal_price][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[minimal_price][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[msrp][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[msrp][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[msrp_display_actual_price_type]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[msrp_display_actual_price_type]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[name]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[name]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[news_from_date][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[news_from_date][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[news_to_date][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[news_to_date][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[old_id][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[old_id][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[open_amount_max][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[open_amount_max][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[open_amount_min][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[open_amount_min][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[options_container]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[options_container]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[page_layout]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[page_layout]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[price][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[price][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[price_type][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[price_type][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[price_view]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[price_view]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[quantity_and_stock_status]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[quantity_and_stock_status]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[related_tgtr_position_behavior][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[related_tgtr_position_behavior][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[related_tgtr_position_limit][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[related_tgtr_position_limit][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[required_options]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[required_options]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[samples_title]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[samples_title]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[shipment_type][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[shipment_type][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[short_description]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[short_description]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[sku]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[sku]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[sku_type][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[sku_type][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[small_image]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[small_image]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[small_image_label]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[small_image_label]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[special_from_date][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[special_from_date][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[special_price][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[special_price][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[special_to_date][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[special_to_date][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[status]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[status]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[tax_class_id]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[tax_class_id]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[thumbnail]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[thumbnail]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[thumbnail_label]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[thumbnail_label]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[tier_price][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[tier_price][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[updated_at]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[updated_at]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[upsell_tgtr_position_behavior][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[upsell_tgtr_position_behavior][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[upsell_tgtr_position_limit][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[upsell_tgtr_position_limit][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[url_key]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[url_key]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[url_path]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[url_path]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[use_config_allow_message][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[use_config_allow_message][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[use_config_email_template][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[use_config_email_template][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[use_config_is_redeemable][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[use_config_is_redeemable][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[use_config_lifetime][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[use_config_lifetime][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[visibility]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[visibility]</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[weight][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[weight][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="export_filter[weight_type][]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">export_filter[weight_type][]</stringProp>
+            <stringProp name="Argument.value">,</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+          <elementProp name="frontend_label" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.name">frontend_label</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}${admin_path}/admin/export/export/entity/catalog_product/file_format/csv</stringProp>
+      <stringProp name="HTTPSampler.method">POST</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="-261088822">kpi-simple product</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">16</intProp>
+      </ResponseAssertion>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

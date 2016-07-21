@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Ant build configuration for MPAF KPI Throughput Sanity Tests
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="MPAF KPI Throughput Sanity Test" basedir="../../../../../../../../magento2ce" default="run">
+    <import file="../../../../../../../../magento2ce/dev/build/core_dev/util.xml"/>
+
+    <target name="_init">
+        <propertyregex property="webhost"
+                       input="${env.http_host}"
+                       regexp="http://([0-9.]*)/builds/"
+                       select="\1"
+                       casesensitive="false" />
+        <property name="magento_instance_base_url" value="http://${webhost}/builds/${env.build.key}/build-${env.build.number}/"/>
+        <property name="product_root_dir" location="${env.deploy_directory}/${env.build.key}/build-${env.build.number}"/>
+        <property name="mpaf_root_dir" location="${product_root_dir}/dev/build/core_dev/performance/mpaf"/>
+        <echo message="webhost = ${webhost}"/>
+        <echo message="magento_instance_base_url = ${magento_instance_base_url}"/>
+    </target>
+
+    <target name="run" depends="_server_info,_init" description="Test Magento KPI Throughput">
+        <antcall target="_deploy_magento"/>
+        <antcall target="_drop_database" />
+        <antcall target="_create_database"/>
+        <antcall target="_enable_production_mode"/>
+        <antcall target="_install_magento"/>
+        <!-- performance features -->
+        <!-- Static file deploy and reindex commented out to reduce run time of KPI Sanity build -->
+        <!-- <antcall target="_deploy_static_files"/> -->
+        <antcall target="_run_single_tenant_compiler"/>
+        <antcall target="_generate_test_data"/>
+        <antcall target="_app_settings"/>
+        <antcall target="_reindex"/>
+        <antcall target="_clean_caches"/>
+        <antcall target="_validation"/>
+    </target>
+
+    <target name="vendor_run" depends="_server_info,_init" description="Test Magento KPI Throughput">
+        <antcall target="_deploy_magento"/>
+        <antcall target="_drop_database" />
+        <antcall target="_create_database"/>
+        <antcall target="_enable_production_mode"/>
+        <antcall target="_vendor_install_magento"/>
+        <!-- performance features -->
+        <!-- Static file deploy and reindex commented out to reduce run time of KPI Sanity build -->
+        <!-- <antcall target="_deploy_static_files"/> -->
+        <antcall target="_run_single_tenant_compiler"/>
+        <antcall target="_generate_test_data"/>
+        <antcall target="_app_settings"/>
+        <antcall target="_reindex"/>
+        <antcall target="_clean_caches"/>
+        <antcall target="_validation"/>
+    </target>
+
+    <target name="_deploy_magento"
+            description="Deploy Magento instance (installation is done later during tests execution in bootstrap).">
+        <copy todir="${product_root_dir}" failonerror="true">
+            <fileset dir="${basedir}" defaultexcludes="no"/>
+        </copy>
+        <!--Make all necessary directories writable-->
+        <antcall target="_installation_requirements"/>
+    </target>
+
+    <target name="_install_magento" depends="_composer_dev_install,_composer_install,_composer_update" >
+
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${product_root_dir}/dev/build/publication/edition.php -- --dir='${product_root_dir}' --edition='${env.magento_edition}' --internal"/>
+        </exec>
+
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${product_root_dir}/bin/magento setup:install
+					--db-host='${env.db_host}' --db-name='${env.db_name}' --db-user='${env.db_user}' --db-password='${env.db_password}'
+					--base-url='${magento_instance_base_url}' --use-rewrites='1' --cleanup-database
+					--session-save='db' --backend-frontname='backend'
+					--admin-lastname='Owner' --admin-firstname='Store' --admin-email='admin@example.com'
+					--admin-user='admin' --admin-password='123123q'
+					--key='374549282625' --admin-use-security-key=0 --magento-init-params='MAGE_MODE=production'"/>
+        </exec>
+    </target>
+
+    <target name="_vendor_install_magento" depends="_composer_dev_install,_composer_install,_composer_update" >
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${product_root_dir}/bin/magento setup:install
+					--db-host='${env.db_host}' --db-name='${env.db_name}' --db-user='${env.db_user}' --db-password='${env.db_password}'
+					--base-url='${magento_instance_base_url}' --use-rewrites='1' --cleanup-database
+					--session-save='db' --backend-frontname='backend'
+					--admin-lastname='Owner' --admin-firstname='Store' --admin-email='admin@example.com'
+					--admin-user='admin' --admin-password='123123q'
+					--key='374549282625' --admin-use-security-key=0 --magento-init-params='MAGE_MODE=production'"/>
+        </exec>
+    </target>
+
+    <target name="_remove_cache_files">
+        <exec executable="rm" failonerror="true">
+            <arg line="-rf ${product_root_dir}/var/di ${product_root_dir}/var/generation ${product_root_dir}/var/cache"/>
+        </exec>
+    </target>
+
+    <target name="_deploy_static_files">
+        <antcall target="_remove_cache_files"/>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${product_root_dir}/bin/magento setup:static-content:deploy"/>
+        </exec>
+    </target>
+
+    <target name="_enable_production_mode">
+        <exec executable="echo" failonerror="true">
+            <arg line="'' >>  ${product_root_dir}/.htaccess"/>
+        </exec>
+        <exec executable="echo" failonerror="true">
+            <arg line="echo 'SetEnv MAGE_MODE production' >>  ${product_root_dir}/.htaccess"/>
+        </exec>
+    </target>
+
+    <target name="_generate_test_data">
+        <antcall target="_remove_cache_files"/>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${product_root_dir}/bin/magento setup:performance:generate-fixtures '${product_root_dir}/setup/performance-toolkit/profiles/ee/small.xml'"/>
+        </exec>
+    </target>
+
+    <target name="_reindex">
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${product_root_dir}/bin/magento indexer:reindex"/>
+        </exec>
+    </target>
+
+    <target name="_clean_caches">
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${product_root_dir}/bin/magento cache:clean"/>
+        </exec>
+    </target>
+    <target name="_composer_dev_install">
+        <exec executable="/usr/local/bin/composer" dir="${product_root_dir}/dev" failonerror="true">
+            <env key="COMPOSER_PROCESS_TIMEOUT" value="600"/>
+            <arg line="install --working-dir ${product_root_dir}/dev --no-plugins"/>
+        </exec>
+    </target>
+    <target name="_composer_update">
+        <exec executable="/usr/local/bin/composer" dir="${product_root_dir}" failonerror="true">
+            <env key="COMPOSER_PROCESS_TIMEOUT" value="600"/>
+            <arg line="update"/>
+        </exec>
+    </target>
+
+    <target name="_run_single_tenant_compiler" >
+        <!-- This must be run after all tools have run, since this compiler affects app/code and lib/internal/Magento classes. -->
+        <exec executable="php" dir="${product_root_dir}" failonerror="true">
+            <arg line="-f ${product_root_dir}/bin/magento setup:di:compile"/>
+        </exec>
+    </target>
+
+    <target name="_app_settings">
+        <exec executable="sed" failonerror="true">
+            <arg line="-i &quot;s#%merge_css%#${env.merge_css}#&quot; ${mpaf_root_dir}/scripts/install/magento/config/profiles/base_config.xml"/>
+        </exec>
+        <exec executable="sed" failonerror="true">
+            <arg line="-i &quot;s#%minify_css%#${env.minify_css}#&quot; ${mpaf_root_dir}/scripts/install/magento/config/profiles/base_config.xml"/>
+        </exec>
+        <exec executable="sed" failonerror="true">
+            <arg line="-i &quot;s#%merge_js%#${env.merge_js}#&quot; ${mpaf_root_dir}/scripts/install/magento/config/profiles/base_config.xml"/>
+        </exec>
+        <exec executable="sed" failonerror="true">
+            <arg line="-i &quot;s#%minify_js%#${env.minify_js}#&quot; ${mpaf_root_dir}/scripts/install/magento/config/profiles/base_config.xml"/>
+        </exec>
+        <exec executable="sed" failonerror="true">
+            <arg line="-i &quot;s#%js_bundling%#${env.js_bundling}#&quot; ${mpaf_root_dir}/scripts/install/magento/config/profiles/base_config.xml"/>
+        </exec>
+        <exec executable="sed" failonerror="true">
+            <arg line="-i &quot;s#%async_indexing%#${env.async_indexing}#&quot; ${mpaf_root_dir}/scripts/install/magento/config/profiles/base_config.xml"/>
+        </exec>
+        <exec executable="sed" failonerror="true">
+            <arg line="-i &quot;s#%async_sending%#${env.async_sending}#&quot; ${mpaf_root_dir}/scripts/install/magento/config/profiles/base_config.xml"/>
+        </exec>
+        <exec executable="php" dir="${product_root_dir}" failonerror="true">
+            <arg line="-f ${product_root_dir}/bin/magento setup:performance:generate-fixtures ${mpaf_root_dir}/scripts/install/magento/config/profiles/base_config.xml --skip-reindex"/>
+        </exec>
+    </target>
+
+    <target name="_run_tests" description="Run Web API functional tests.">
+        <exec executable="php" dir="${mpaf_root_dir}/tool">
+            <arg line="jmx-generator.php --scenario=${env.test_script}"/>
+        </exec>
+        <exec executable="/usr/local/jmeter/bin/jmeter" failonerror="true">
+            <arg line="-n -t ${mpaf_root_dir}/tool/${env.test_script}.jmx -Jhost=${webhost} -Jbase_path=/builds/${env.build.key}/build-${env.build.number}/ -Jadmin_path=backend -JcatalogBrowsingByGuest=1 -JcatalogBrowsingByCustomer=1 -JcheckoutByGuest=1 -JcheckoutByCustomer=1 -JabandonedCartByGuest=1 -JabandonedCartByCustomer=1 -JadminBrowseCustomersGridScenario1_ViewOddGridPages=1 -JadminBrowseCustomersGridScenario2_ViewEvenGridPages=1 -JadminBrowseCustomersGridScenario3_Filtering=1 -JadminBrowseCustomersGridScenario4_Sorting=1 -JadminBrowseCustomersGridScenario5_FilteringAndSorting=1 -JadminBrowseOrdersGridScenario1_ViewOddGridPages=1 -JadminBrowseOrdersGridScenario2_ViewEvenGridPages=1 -JadminBrowseOrdersGridScenario3_Filtering=1 -JadminBrowseOrdersGridScenario4_Sorting=1 -JadminBrowseOrdersGridScenario5_FilteringAndSorting=1 -JadminBrowseProductsGridScenario1_ViewOddGridPages=1 -JadminBrowseProductsGridScenario2_ViewEvenGridPages=1 -JadminBrowseProductsGridScenario3_Filtering=1 -JadminBrowseProductsGridScenario4_Sorting=1 -JadminBrowseProductsGridScenario5_FilteringAndSorting=1 -JadminEditProduct=1 -JadminCreateProduct=1 -JadminEditOrder=1 -JadminCreateOrder=1 -Jloops=1  -j ${env.build.working.directory}/jmeter.log -l ${env.build.working.directory}/jmeter-results.jtl -Jsummariser.out=true -Jjmeter.save.saveservice.assertions=true -Jjmeter.save.saveservice.assertion_results_failure_message=true -Jjmeter.save.saveservice.assertion_results=all"/>
+        </exec>
+        <antcall target="_generate_performance_toolkit_benchmark"/>
+    </target>
+
+    <target name="_validation" depends="_run_tests">
+		<copy file="${product_root_dir}/setup/performance-toolkit/benchmark.jmx" tofile="${mpaf_root_dir}/tool/benchmarkMod.jmx">
+			<filterchain>
+				<striplinecomments>
+					<comment value="&lt;?xml"/>
+					<comment value="&lt;!--"/>
+					<comment value="/**"/>
+					<comment value=" *"/>
+					<comment value="--&gt;"/>
+				</striplinecomments>
+			</filterchain>
+		</copy>
+		<copy file="${mpaf_root_dir}/tool/performanceToolkit.jmx" tofile="${mpaf_root_dir}/tool/ToolkitMod.jmx">
+			<filterchain>
+				<striplinecomments>
+					<comment value="&lt;?xml"/>
+				</striplinecomments>
+			</filterchain>
+		</copy>
+        <fail message="At least one test assertion has failed. Please review jmeter-results.jtl log file for further details.">
+            <condition>
+                <or>
+                    <resourcecontains resource="${env.build.working.directory}/jmeter-results.jtl" substring="Test failed:" casesensitive="true"/>
+                    <resourcecontains resource="${env.build.working.directory}/jmeter-results.jtl" substring="404,Forbidden" casesensitive="true"/>
+                </or>
+            </condition>
+        </fail>
+		<checksum file="${mpaf_root_dir}/tool/ToolkitMod.jmx" property="toolkMD5"/>
+		<checksum file="${mpaf_root_dir}/tool/benchmarkMod.jmx" property="benchMD5"/>
+		<echo message="${toolkMD5}"/>
+		<echo message="${benchMD5}"/>
+		<condition property="MD5doesNotMatch">
+			<not>
+				<equals arg1="${toolkMD5}" arg2="${benchMD5}"/>
+			</not>
+		</condition>
+		<fail if="MD5doesNotMatch" message="Any changes to the Performance Toolkit JMeter script, must be made in the jmx generator fragments."/>
+    </target>
+
+    <target name="_generate_performance_toolkit_benchmark">
+        <!-- generate performance toolkit script -->
+        <exec executable="php" dir="${mpaf_root_dir}/tool">
+            <arg line="jmx-generator.php --scenario=performanceToolkit"/>
+        </exec>
+        <!-- apply post-generation manipulation of the script -->
+        <exec executable="sed" failonerror="true">
+            <arg line="-i &quot;s#admin_path,backend#admin_path,admin#&quot; ${mpaf_root_dir}/tool/performanceToolkit.jmx"/>
+        </exec>
+        <exec executable="sed" failonerror="true">
+            <arg line="-i &quot;s#customer_checkout_percent,100#customer_checkout_percent,4#&quot; ${mpaf_root_dir}/tool/performanceToolkit.jmx"/>
+        </exec>
+        <exec executable="sed" failonerror="true">
+            <arg line="-i &quot;s#guest_checkout_percent,100#guest_checkout_percent,4#&quot; ${mpaf_root_dir}/tool/performanceToolkit.jmx"/>
+        </exec>
+        <exec executable="sed" failonerror="true">
+            <arg line="-i &quot;s#view_catalog_percent,100#view_catalog_percent,62#&quot; ${mpaf_root_dir}/tool/performanceToolkit.jmx"/>
+        </exec>
+        <exec executable="sed" failonerror="true">
+            <arg line="-i &quot;s#view_product_add_to_cart_percent,100#view_product_add_to_cart_percent,30#&quot; ${mpaf_root_dir}/tool/performanceToolkit.jmx"/>
+        </exec>
+    </target>
+</project>

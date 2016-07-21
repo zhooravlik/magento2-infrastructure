@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scenario name="B2BthroughputLoop" title="KPI Throughput (Loop) for B2B">
+    <import name="http_request_default" />
+    <import name="http_header_manager" />
+    <import name="http_cookie_manager" />
+    <import name="user_defined_variables_filter_text" />
+    <import name="setup">
+        <import name="admin_login/assert_logged_in" reference="SetUp - Login Submit Form" before="-"/>
+        <import name="customer_checkout/ajax_load_login_form" after="SetUp - BeanShell Sampler: Validate properties and count users" />
+    </import>
+    <import name="admin_task" title="Admin Task" />
+    <import name="category_product_browsing_by_customer_tmpl">
+        <import name="http_cookie_manager_clear_cookies" />
+        <import name="loop_controller" />
+        <import name="category_product_browsing_by_customer/get_arguments" reference="Loop Controller" after="-" />
+        <import name="category_product_browsing_by_customer/open_home_page" reference="Loop Controller" after="-" />
+        <import name="common/customer_all_section_load" reference="Loop Controller" after="-" />
+        <import name="common/open_login_page" reference="Loop Controller" after="-" />
+        <import name="customer_checkout/ajax_load_login_form" reference="Loop Controller" after="-" />
+        <import name="common/login" reference="Loop Controller" after="-" />
+        <import name="category_product_browsing_by_customer/ajax_load_dashboard_data" reference="Loop Controller" after="-" />
+        <import name="common/open_category" reference="Loop Controller" after="-" />
+        <import name="common/simple_product_view_1" reference="Loop Controller" after="-" />
+        <import name="common/ajax_review_simple_product_1" reference="Loop Controller" after="-" />
+        <import name="common/simple_product_view_2" reference="Loop Controller" after="-" />
+        <import name="common/ajax_review_simple_product_2" reference="Loop Controller" after="-" />
+        <import name="common/configurable_product_view_1" reference="Loop Controller" after="-" />
+        <import name="common/ajax_review_configurable_product_1" reference="Loop Controller" after="-" />
+    </import>
+    <import name="tear_down" />
+    <import name="view_results_tree" />
+</scenario>

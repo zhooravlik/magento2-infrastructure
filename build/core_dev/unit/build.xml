@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Apache Ant's build file for core development unit tests
+ *
+ * {license_notice}
+ *
+ * @copyright  {copyright}
+ * @license    {license_link}
+ */
+-->
+<project name="Core Development Unit Tests" basedir="../../../../" default="_unit_tests_all">
+    <import file="../util.xml"/>
+    <property name="file.phpunit" location="${basedir}/dev/build/core_dev/unit/unit.sh"/>
+
+    <target name="_jstestdriver_path_substitution" description="JsTestDriver JAR file path substitution in configuration file from environment variable">
+        <fail unless="jstestdriver_config_file" message="Property 'jstestdriver_config_file' must be defined"/>
+        <fail unless="env.JsTestDriver" message="Environment variable 'JsTestDriver' must be defined"/>
+        <replace file="${jstestdriver_config_file}">
+            <replacefilter token="{{path_to_jstestdriver_jar}}" value="${env.JsTestDriver}"/>
+        </replace>
+    </target>
+
+    <target name="_updater_composer_install" if="env.COMPOSER_HOME">
+        <mkdir dir="${env.COMPOSER_HOME}"/>
+        <echo message="Run 'composer install' for directory '${product_root_dir}/update'"/>
+        <exec executable="/usr/local/bin/composer" dir="${product_root_dir}/update" failonerror="true">
+            <env key="COMPOSER_PROCESS_TIMEOUT" value="600"/>
+            <arg line="install --no-interaction --ignore-platform-reqs"/>
+        </exec>
+    </target>
+
+    <target name="_unit_tests_magento" depends="_product_location,_composer_install,_updater_composer_install" description="Product unit tests">
+        <exec dir="${product_root_dir}/dev/tests/unit" executable="${phpunit}" failonerror="true">
+            <arg line="${phpunit_arguments}"/>
+            <arg line="${phpunit_debug}"/>
+            <arg line="--log-junit ${basedir}/unit_tests_magento.xml"/>
+        </exec>
+    </target>
+    <target name="_unit_tests_integration_framework" depends="_product_location,_composer_install" description="Unit tests for integration testing framework">
+        <exec dir="${product_root_dir}/dev/tests/integration/framework/tests/unit" executable="${phpunit}" failonerror="true">
+            <arg line="${phpunit_arguments}"/>
+            <arg line="${phpunit_debug}"/>
+            <arg line="--log-junit ${basedir}/unit_tests_integration_framework.xml"/>
+        </exec>
+    </target>
+    <target name="_unit_tests_performance_framework" depends="_product_location,_composer_install" description="Unit tests for performance testing framework">
+        <exec dir="${product_root_dir}/dev/build/core_dev/performance/framework/tests/unit" executable="${phpunit}" failonerror="true">
+            <arg line="${phpunit_arguments}"/>
+            <arg line="${phpunit_debug}"/>
+            <arg line="--log-junit ${basedir}/unit_tests_performance_framework.xml"/>
+        </exec>
+    </target>
+    <target name="_unit_tests_static_framework" depends="_product_location,_composer_install" description="Unit tests for static code analysis framework">
+        <exec dir="${product_root_dir}/dev/tests/static/framework/tests/unit" executable="${phpunit}" failonerror="true">
+            <arg line="${phpunit_arguments}"/>
+            <arg line="${phpunit_debug}"/>
+            <arg line="--log-junit ${basedir}/unit_tests_static_framework.xml"/>
+        </exec>
+    </target>
+    <target name="_unit_tests_all" description="All unit tests">
+        <antcall>
+            <target name="_unit_tests_magento"/>
+            <target name="_unit_tests_integration_framework"/>
+            <target name="_unit_tests_performance_framework"/>
+            <target name="_unit_tests_static_framework"/>
+        </antcall>
+    </target>
+
+    <target name="unit_tests_ee" depends="_server_info,_enterprise_edition" description="Unit tests for EE">
+        <antcall target="_unit_tests_all"/>
+    </target>
+
+    <target name="unit_tests_b2b" depends="_server_info,_b2b_edition" description="Unit tests for B2B">
+        <antcall target="_unit_tests_all"/>
+    </target>
+
+    <target name="vendor_unit_tests_ee" depends="_server_info" description="Unit tests for EE">
+        <antcall target="_unit_tests_all"/>
+    </target>
+
+    <target name="unit_tests_ce" depends="_server_info,_community_edition" description="Unit tests for CE">
+        <antcall target="_unit_tests_all"/>
+    </target>
+
+    <target name="unit_tests_js" depends="_server_info,_product_location,_composer_install" description="Javascript unit tests">
+        <copy file="${product_root_dir}/dev/tests/js/JsTestDriver/jsTestDriver.php.dist"
+              tofile="${product_root_dir}/dev/tests/js/JsTestDriver/jsTestDriver.php" overwrite="true"/>
+        <antcall target="_jstestdriver_path_substitution">
+            <param name="jstestdriver_config_file" value="${product_root_dir}/dev/tests/js/JsTestDriver/jsTestDriver.php"/>
+        </antcall>
+        <exec executable="php" failonerror="true">
+            <arg value="${product_root_dir}/dev/tests/js/JsTestDriver/run_js_tests.php"/>
+        </exec>
+    </target>
+
+    <target name="unit_tests_ce_magento_code_coverage" depends="_product_location" description="Code Coverage All CE Unit Tests with Xdebug">
+        <antcall target="_code_coverage_configuration">
+            <param name="configuration_file" value="${product_root_dir}/dev/tests/unit/phpunit.xml.dist"/>
+        </antcall>
+        <antcall target="unit_tests_ce">
+            <param name="phpunit" value="${basedir}/dev/build/bin/phpunit-with-xdebug.sh"/>
+            <param name="phpunit_debug" value="--debug"/>
+        </antcall>
+    </target>
+
+    <target name="unit_tests_ee_magento_code_coverage" depends="_product_location" description="Code Coverage All EE Unit Tests with Xdebug">
+        <antcall target="_code_coverage_configuration">
+            <param name="configuration_file" value="${product_root_dir}/dev/tests/unit/phpunit.xml.dist"/>
+        </antcall>
+        <antcall target="unit_tests_ee">
+            <param name="phpunit" value="${basedir}/dev/build/bin/phpunit-with-xdebug.sh"/>
+            <param name="phpunit_debug" value="--debug"/>
+        </antcall>
+    </target>
+
+    <target name="unit_tests_ce_magento_code_coverage_clover" depends="_product_location" description="Code Coverage All CE Unit Tests: clover xml report generation">
+        <antcall target="_code_coverage_configuration_clover_xml">
+            <param name="configuration_file" value="${product_root_dir}/dev/tests/unit/phpunit.xml.dist"/>
+        </antcall>
+        <antcall target="unit_tests_ce">
+            <param name="phpunit" value="${basedir}/dev/build/bin/phpunit-with-xdebug.sh"/>
+            <param name="phpunit_debug" value="--debug"/>
+        </antcall>
+    </target>
+
+    <target name="unit_tests_ee_magento_code_coverage_clover" depends="_product_location" description="Code Coverage All EE Unit Tests: clover xml report generation">
+        <antcall target="_code_coverage_configuration_clover_xml">
+            <param name="configuration_file" value="${product_root_dir}/dev/tests/unit/phpunit.xml.dist"/>
+        </antcall>
+        <antcall target="unit_tests_ee">
+            <param name="phpunit" value="${basedir}/dev/build/bin/phpunit-with-xdebug.sh"/>
+            <param name="phpunit_debug" value="--debug"/>
+        </antcall>
+    </target>
+
+    <target name="unit_tests_ce_magento_code_coverage_crap4j" depends="_product_location" description="Code Coverage All CE Unit Tests: crap4j xml report generation">
+        <echo message="Code Coverage All CE Unit Tests: crap4j xml report generation - '${product_root_dir}'"/>
+        <antcall target="_code_coverage_configuration_crap4j_xml">
+            <param name="configuration_file" value="${product_root_dir}/dev/tests/unit/phpunit.xml.dist"/>
+        </antcall>
+        <antcall target="unit_tests_ce">
+            <param name="phpunit" value="${basedir}/dev/build/bin/phpunit-with-xdebug.sh"/>
+            <param name="phpunit_debug" value="--debug"/>
+        </antcall>
+    </target>
+
+    <target name="unit_tests_ee_magento_code_coverage_crap4j" depends="_product_location" description="Code Coverage All EE Unit Tests: crap4j xml report generation">
+        <antcall target="_code_coverage_configuration_crap4j_xml">
+            <param name="configuration_file" value="${product_root_dir}/dev/tests/unit/phpunit.xml.dist"/>
+        </antcall>
+        <antcall target="unit_tests_ee">
+            <param name="phpunit" value="${basedir}/dev/build/bin/phpunit-with-xdebug.sh"/>
+            <param name="phpunit_debug" value="--debug"/>
+        </antcall>
+    </target>
+</project>

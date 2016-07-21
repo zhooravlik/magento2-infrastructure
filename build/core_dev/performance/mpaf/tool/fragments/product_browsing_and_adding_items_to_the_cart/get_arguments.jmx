@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <BeanShellSampler guiclass="BeanShellSamplerGui" testclass="BeanShellSampler" testname="Get arguments${__property(activeAdminThread)}(BrowsAddToCart)" enabled="true">
+      <stringProp name="TestPlan.comments">Passing arguments between threads</stringProp>
+      <stringProp name="BeanShellSampler.query">number = (int)(${rv1} * props.get(&quot;simple_products_list&quot;).size());
+simpleList = props.get(&quot;simple_products_list&quot;).get(number);
+vars.put(&quot;simple_product_1_url_key&quot;, simpleList.get(&quot;url_key&quot;));
+vars.put(&quot;simple_product_1_name&quot;, simpleList.get(&quot;title&quot;));
+vars.put(&quot;simple_product_1_id&quot;, simpleList.get(&quot;id&quot;));
+vars.put(&quot;simple_product_1_uenc&quot;, simpleList.get(&quot;uenc&quot;));
+
+number1 = (int)(${rv2} * props.get(&quot;simple_products_list&quot;).size());
+simpleList = props.get(&quot;simple_products_list&quot;).get(number1);
+vars.put(&quot;simple_product_2_url_key&quot;, simpleList.get(&quot;url_key&quot;));
+vars.put(&quot;simple_product_2_name&quot;, simpleList.get(&quot;title&quot;));
+vars.put(&quot;simple_product_2_id&quot;, simpleList.get(&quot;id&quot;));
+vars.put(&quot;simple_product_2_uenc&quot;, simpleList.get(&quot;uenc&quot;));
+
+number = (int)(${rv3} * props.get(&quot;configurable_products_list&quot;).size());
+configurableList = props.get(&quot;configurable_products_list&quot;).get(number);
+vars.put(&quot;configurable_product_1_url_key&quot;, configurableList.get(&quot;url_key&quot;));
+vars.put(&quot;configurable_product_1_name&quot;, configurableList.get(&quot;title&quot;));
+vars.put(&quot;configurable_product_1_id&quot;, configurableList.get(&quot;id&quot;));
+vars.put(&quot;configurable_attribute_id&quot;, configurableList.get(&quot;attribute_id&quot;));
+vars.put(&quot;configurable_option_id&quot;, configurableList.get(&quot;attribute_option_id&quot;));
+vars.put(&quot;configurable_product_1_uenc&quot;, simpleList.get(&quot;uenc&quot;));
+
+vars.put(&quot;category_url_key&quot;, props.get(&quot;category_url_key&quot;));
+vars.put(&quot;category_name&quot;, props.get(&quot;category_name&quot;));
+vars.put(&quot;testLabel&quot;, &quot;BrowsAddToCart&quot;);
+vars.put(&quot;loadType&quot;, &quot;Guest&quot;);</stringProp>
+      <stringProp name="BeanShellSampler.filename"></stringProp>
+      <stringProp name="BeanShellSampler.parameters"></stringProp>
+      <boolProp name="BeanShellSampler.resetInterpreter">true</boolProp>
+    </BeanShellSampler>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

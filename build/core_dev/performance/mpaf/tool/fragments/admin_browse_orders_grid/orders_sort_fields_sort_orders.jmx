@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Orders - Sort Fields, Sort Orders" enabled="true">
+      <collectionProp name="Arguments.arguments">
+        <elementProp name="order_sort_field_1" elementType="Argument">
+          <stringProp name="Argument.name">order_sort_field_1</stringProp>
+          <stringProp name="Argument.value">name</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+        <elementProp name="order_sort_field_2" elementType="Argument">
+          <stringProp name="Argument.name">order_sort_field_2</stringProp>
+          <stringProp name="Argument.value">group</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+        <elementProp name="order_sort_field_3" elementType="Argument">
+          <stringProp name="Argument.name">order_sort_field_3</stringProp>
+          <stringProp name="Argument.value">billing_country_id</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+        <elementProp name="order_sort_order_1" elementType="Argument">
+          <stringProp name="Argument.name">order_sort_order_1</stringProp>
+          <stringProp name="Argument.value">asc</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+        <elementProp name="order_sort_order_2" elementType="Argument">
+          <stringProp name="Argument.name">order_sort_order_2</stringProp>
+          <stringProp name="Argument.value">desc</stringProp>
+          <stringProp name="Argument.metadata">=</stringProp>
+        </elementProp>
+      </collectionProp>
+    </Arguments>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

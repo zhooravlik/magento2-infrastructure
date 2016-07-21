@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config>
+    <profile>
+        <configs> <!-- Config variables and values for change -->
+            <config>
+                <path>system/full_page_cache/varnish/access_list</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>%varnish_access_list%</value>
+            </config>
+            <config>
+                <path>system/full_page_cache/varnish/backend_host</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>%varnish_backend_host%</value>
+            </config>
+            <config>
+                <path>system/full_page_cache/varnish/backend_port</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>80</value>
+            </config>
+            <config>
+                <path>system/full_page_cache/caching_application</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>2</value>
+            </config>
+        </configs>
+    </profile>
+</config>

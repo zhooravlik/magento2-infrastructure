@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="SetUp - Search Customers" enabled="true">
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="namespace" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">customer_listing</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">namespace</stringProp>
+          </elementProp>
+          <elementProp name="search" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">search</stringProp>
+          </elementProp>
+          <elementProp name="filters[placeholder]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">customer_since[locale]=en_US&amp;website_id=1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">filters[placeholder]</stringProp>
+          </elementProp>
+          <elementProp name="paging[pageSize]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">${customers_page_size}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">paging[pageSize]</stringProp>
+          </elementProp>
+          <elementProp name="paging[current]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">paging[current]</stringProp>
+          </elementProp>
+          <elementProp name="sorting[field]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">entity_id</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">sorting[field]</stringProp>
+          </elementProp>
+          <elementProp name="sorting[direction]" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">asc</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">sorting[direction]</stringProp>
+          </elementProp>
+          <elementProp name="isAjax" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">true</boolProp>
+            <stringProp name="Argument.value">true</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <boolProp name="HTTPArgument.use_equals">true</boolProp>
+            <stringProp name="Argument.name">isAjax</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}${admin_path}/mui/index/render/</stringProp>
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert total records is not 0" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="827137952">\&quot;totalRecords\&quot;:0</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">20</intProp>
+      </ResponseAssertion>
+      <hashTree/>
+      <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract customer emails" enabled="true">
+        <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+        <stringProp name="RegexExtractor.refname">customer_emails</stringProp>
+        <stringProp name="RegexExtractor.regex">\&quot;email\&quot;:\&quot;([^&quot;]+)</stringProp>
+        <stringProp name="RegexExtractor.template">$1$</stringProp>
+        <stringProp name="RegexExtractor.default"></stringProp>
+        <stringProp name="RegexExtractor.match_number">-1</stringProp>
+      </RegexExtractor>
+      <hashTree/>
+      <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract customer ids" enabled="true">
+        <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+        <stringProp name="RegexExtractor.refname">customer_ids</stringProp>
+        <stringProp name="RegexExtractor.regex">\&quot;entity_id\&quot;:\&quot;([^&quot;]+)</stringProp>
+        <stringProp name="RegexExtractor.template">$1$</stringProp>
+        <stringProp name="RegexExtractor.default"></stringProp>
+        <stringProp name="RegexExtractor.match_number">-1</stringProp>
+      </RegexExtractor>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

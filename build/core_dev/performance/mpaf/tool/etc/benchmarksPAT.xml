@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scenario name="benchmarksPAT" title="Benchmarks (PAT)">
+    <import name="http_request_default" />
+    <import name="http_header_manager" />
+    <import name="http_cookie_manager" />
+    <import name="setup/setup">
+        <import name="admin_login/assert_logged_in" reference="SetUp - Login Submit Form" before="-"/>
+        <import name="setup/setup_search_customers_json" after="SetUp - Open Customer Grid" />
+        <import name="customer_checkout/ajax_load_login_form" after="SetUp - BeanShell Sampler: Validate properties and count users" />
+    </import>
+    <import name="customer_checkout_PAT_tmpl">
+        <import name="http_cookie_manager" />
+        <import name="checkout_PAT/set_values" />
+        <import name="common/open_home_page" />
+        <import name="common/customer_all_section_load" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/open_login_page" />
+        <import name="common/customer_section_load" />
+        <import name="customer_checkout/ajax_load_login_form" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/login" />
+        <import name="common/customer_section_load" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/open_category" />
+        <import name="common/customer_section_load" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/simple_product_view_1" />
+        <import name="common/customer_section_load" />
+        <import name="common/ajax_review_simple_product_1" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/simple_product_add_to_cart_1" />
+        <import name="common/http_header_manager_ajax" reference="Simple Product 1 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="common/load_checkout_1" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/configurable_product_view_1" />
+        <import name="common/customer_section_load" />
+        <import name="common/ajax_review_configurable_product_1" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/configurable_product_add_to_cart_1" />
+        <import name="common/http_header_manager_ajax" reference="Configurable Product 1 Add To Cart${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="checkout_PAT/load_checkout_2" />
+        <import name="common/http_header_manager_ajax" reference="Load ${loadType}2${__property(activeAdminThread)}(${testLabel})" before="-" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="customer_checkout/checkout_start" />
+        <import name="common/customer_section_load" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="customer_checkout/checkout_billing_shipping_information" />
+        <import name="common/customer_section_load_update_section_id" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="customer_checkout/checkout_payment_info_place_order" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="customer_checkout/checkout_success" />
+        <import name="common/customer_section_load" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/logout" />
+        <import name="checkout_PAT/constant_timer" />
+    </import>
+    <import name="tear_down" />
+    <import name="checkout_PAT/aggregate_graph" />
+    <import name="view_results_tree" />
+</scenario>

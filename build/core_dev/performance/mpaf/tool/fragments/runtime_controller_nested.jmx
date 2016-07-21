@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <RunTime guiclass="RunTimeGui" testclass="RunTime" testname="Runtime Controller Nested" enabled="true">
+      <stringProp name="RunTime.seconds">${test_duration}</stringProp>
+    </RunTime>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

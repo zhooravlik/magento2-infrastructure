@@ -1,0 +1,14 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,bytes,grpThreads,allThreads,Latency
+1386173316507,2211,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51334,1,1,434
+1386173319723,1316,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51301,1,1,340
+1386173322042,2075,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51407,1,1,355
+1386173325120,1240,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51328,1,1,323
+1386173327363,2016,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51255,1,1,310
+1386173330383,1234,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51311,1,1,333
+1386173332619,1259,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51245,1,1,311
+1386173334881,1234,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51229,1,1,305
+1386173337119,1279,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51393,1,1,357
+1386173339402,1318,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51255,1,1,361
+1386173341724,1191,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51399,1,1,317
+1386173343918,1251,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51233,1,1,308
+1386173346172,1215,PayPal Home Page,200,OK,jp@gc - Ultimate Thread Group 1-1,text,true,51385,1,1,316

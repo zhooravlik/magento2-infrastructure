@@ -1,0 +1,611 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Apache Ant's build file for MPAF benchmark tests
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="ant-jmeter" default="all">
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
+    <description>
+    </description>
+
+    <property environment="env"/>
+    <property file="build.properties" />
+
+    <target name="init">
+        <tstamp>
+            <format property="current.time" pattern="yyyyMMdd_HHmmss"/>
+        </tstamp>
+        <!-- create unique identifier for this test run -->
+        <property name="test.datetime" value="${current.time}"/>
+        <!-- create unique identifier for use in jmeter targets -->
+        <property name="jmeter.test.directory" value="${remote.working.dir}/jmeter-${env.test.identifier}-${test.datetime}"/>
+        <!-- create unique identifier for use in resource monitoring targets -->
+        <property name="nmon.test.directory" value="${remote.working.dir}/nmon-${env.test.identifier}-${test.datetime}"/>
+        <!-- create unique local results directory name -->
+        <property name="local.results.directory" value="${local.working.dir}/results-${env.test.identifier}-${test.datetime}"/>
+
+        <condition property="solr">
+            <and>
+                <equals arg1="${enable.solr}" arg2="1"/>
+            </and>
+        </condition>
+    </target>
+
+    <target name="resetData" depends="init">
+        <ant antfile="reset.xml" target="bamboo"/>
+    </target>
+
+    <target name="all" depends="init, startRemoteMonitors, runTest, stopRemoteMonitors, copyRemoteFiles, runAnalysis, generateJmeterReports, generateGraphs"/>
+    <target name="bamboo" depends="init, resetData, startRemoteMonitors, runTest, stopRemoteMonitors, copyRemoteFiles, runAnalysis, generateJmeterReports, generateGraphs"/>
+    <target name="runAnalysis" depends="init, analyzeResults" />
+    <target name="generateGraphs" depends="init, generateNmonGraphs, generateJmeterGraphs" />
+
+    <target name="remoteClean">
+        <antcall target="cleanHost">
+            <param name="host" value="${loadgenerator.host}"/>
+            <param name="user" value="${loadgenerator.user}"/>
+        </antcall>
+        <antcall target="cleanHost">
+            <param name="host" value="${webnode.host}"/>
+            <param name="user" value="${webnode.user}"/>
+        </antcall>
+        <if>
+            <isset property="webnode02.host"/>
+            <then>
+                <antcall target="cleanHost">
+                    <param name="host" value="${webnode02.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode03.host"/>
+            <then>
+                <antcall target="cleanHost">
+                    <param name="host" value="${webnode03.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode04.host"/>
+            <then>
+                <antcall target="cleanHost">
+                    <param name="host" value="${webnode04.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode05.host"/>
+            <then>
+                <antcall target="cleanHost">
+                    <param name="host" value="${webnode05.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode06.host"/>
+            <then>
+                <antcall target="cleanHost">
+                    <param name="host" value="${webnode06.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+        <isset property="redis.host"/>
+            <then>
+                <antcall target="cleanHost">
+                    <param name="host" value="${redis.host}"/>
+                    <param name="user" value="${redis.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <antcall target="cleanHost">
+            <param name="host" value="${mysql.host}"/>
+            <param name="user" value="${mysql.user}"/>
+        </antcall>
+        <if>
+            <isset property="mysql02.host"/>
+            <then>
+                <antcall target="cleanHost">
+                    <param name="host" value="${mysql02.host}"/>
+                    <param name="user" value="${mysql.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="solr.host"/>
+            <then>
+                <antcall target="cleanHost">
+                    <param name="host" value="${solr.host}"/>
+                    <param name="user" value="${solr.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="balancer.host"/>
+            <then>
+                <antcall target="cleanHost">
+                    <param name="host" value="${balancer.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="varnish.host"/>
+            <then>
+                <antcall target="cleanHost">
+                    <param name="host" value="${varnish.host}"/>
+                    <param name="user" value="${varnish.user}"/>
+                </antcall>
+            </then>
+        </if>
+    </target>
+
+    <target name="startRemoteMonitors" depends="init" >
+        <antcall target="monitorHost">
+            <param name="host" value="${loadgenerator.host}"/>
+            <param name="user" value="${loadgenerator.user}"/>
+        </antcall>
+        <antcall target="monitorHost">
+            <param name="host" value="${webnode.host}"/>
+            <param name="user" value="${webnode.user}"/>
+        </antcall>
+        <if>
+            <isset property="webnode02.host"/>
+            <then>
+                <antcall target="monitorHost">
+                    <param name="host" value="${webnode02.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode03.host"/>
+            <then>
+                <antcall target="monitorHost">
+                    <param name="host" value="${webnode03.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode04.host"/>
+            <then>
+                <antcall target="monitorHost">
+                    <param name="host" value="${webnode04.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode05.host"/>
+            <then>
+                <antcall target="monitorHost">
+                    <param name="host" value="${webnode05.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode06.host"/>
+            <then>
+                <antcall target="monitorHost">
+                    <param name="host" value="${webnode06.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="redis.host"/>
+            <then>
+                <antcall target="monitorHost">
+                    <param name="host" value="${redis.host}"/>
+                    <param name="user" value="${redis.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <antcall target="monitorHost">
+            <param name="host" value="${mysql.host}"/>
+            <param name="user" value="${mysql.user}"/>
+        </antcall>
+        <if>
+            <isset property="mysql02.host"/>
+            <then>
+                <antcall target="monitorHost">
+                    <param name="host" value="${mysql02.host}"/>
+                    <param name="user" value="${mysql.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="solr.host"/>
+            <then>
+                <antcall target="monitorHost">
+                    <param name="host" value="${solr.host}"/>
+                    <param name="user" value="${solr.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="balancer.host"/>
+            <then>
+                <antcall target="monitorHost">
+                    <param name="host" value="${balancer.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="varnish.host"/>
+            <then>
+                <antcall target="monitorHost">
+                    <param name="host" value="${varnish.host}"/>
+                    <param name="user" value="${varnish.user}"/>
+                </antcall>
+            </then>
+        </if>
+    </target>
+
+    <target name="copyRemoteFiles" depends="init">
+        <antcall target="copyFiles">
+            <param name="host" value="${webnode.host}"/>
+            <param name="user" value="${webnode.user}"/>
+        </antcall>
+        <antcall target="copyFiles">
+            <param name="host" value="${loadgenerator.host}"/>
+            <param name="user" value="${loadgenerator.user}"/>
+            <param name="copy-jmeter-files" value="1"/>
+        </antcall>
+        <if>
+            <isset property="webnode02.host"/>
+            <then>
+                <antcall target="copyFiles">
+                    <param name="host" value="${webnode02.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode03.host"/>
+            <then>
+                <antcall target="copyFiles">
+                    <param name="host" value="${webnode03.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode04.host"/>
+            <then>
+                <antcall target="copyFiles">
+                    <param name="host" value="${webnode04.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode05.host"/>
+            <then>
+                <antcall target="copyFiles">
+                    <param name="host" value="${webnode05.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode06.host"/>
+            <then>
+                <antcall target="copyFiles">
+                    <param name="host" value="${webnode06.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="redis.host"/>
+            <then>
+                <antcall target="copyFiles">
+                    <param name="host" value="${redis.host}"/>
+                    <param name="user" value="${redis.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <antcall target="copyFiles">
+            <param name="host" value="${mysql.host}"/>
+            <param name="user" value="${mysql.user}"/>
+        </antcall>
+        <if>
+            <isset property="mysql02.host"/>
+            <then>
+                <antcall target="copyFiles">
+                    <param name="host" value="${mysql02.host}"/>
+                    <param name="user" value="${mysql.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="solr.host"/>
+            <then>
+                <antcall target="copyFiles">
+                    <param name="host" value="${solr.host}"/>
+                    <param name="user" value="${solr.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="balancer.host"/>
+            <then>
+                <antcall target="copyFiles">
+                    <param name="host" value="${balancer.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="varnish.host"/>
+            <then>
+                <antcall target="copyFiles">
+                    <param name="host" value="${varnish.host}"/>
+                    <param name="user" value="${varnish.user}"/>
+                </antcall>
+            </then>
+        </if>
+    </target>
+
+    <target name="stopRemoteMonitors">
+        <antcall target="stopMonitoringHost">
+            <param name="host" value="${webnode.host}"/>
+            <param name="user" value="${webnode.user}"/>
+        </antcall>
+        <antcall target="stopMonitoringHost">
+            <param name="host" value="${loadgenerator.host}"/>
+            <param name="user" value="${loadgenerator.user}"/>
+        </antcall>
+        <if>
+            <isset property="webnode02.host"/>
+            <then>
+                <antcall target="stopMonitoringHost">
+                    <param name="host" value="${webnode02.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode03.host"/>
+            <then>
+                <antcall target="stopMonitoringHost">
+                    <param name="host" value="${webnode03.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode04.host"/>
+            <then>
+                <antcall target="stopMonitoringHost">
+                    <param name="host" value="${webnode04.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode05.host"/>
+            <then>
+                <antcall target="stopMonitoringHost">
+                    <param name="host" value="${webnode05.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="webnode06.host"/>
+            <then>
+                <antcall target="stopMonitoringHost">
+                    <param name="host" value="${webnode06.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="redis.host"/>
+            <then>
+                <antcall target="stopMonitoringHost">
+                    <param name="host" value="${redis.host}"/>
+                    <param name="user" value="${redis.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <antcall target="stopMonitoringHost">
+            <param name="host" value="${mysql.host}"/>
+            <param name="user" value="${mysql.user}"/>
+        </antcall>
+        <if>
+            <isset property="mysql02.host"/>
+            <then>
+                <antcall target="stopMonitoringHost">
+                    <param name="host" value="${mysql02.host}"/>
+                    <param name="user" value="${mysql.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="solr.host"/>
+            <then>
+                <antcall target="stopMonitoringHost">
+                    <param name="host" value="${solr.host}"/>
+                    <param name="user" value="${solr.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="balancer.host"/>
+            <then>
+                <antcall target="stopMonitoringHost">
+                    <param name="host" value="${balancer.host}"/>
+                    <param name="user" value="${webnode.user}"/>
+                </antcall>
+            </then>
+        </if>
+        <if>
+            <isset property="varnish.host"/>
+            <then>
+                <antcall target="stopMonitoringHost">
+                    <param name="host" value="${varnish.host}"/>
+                    <param name="user" value="${varnish.user}"/>
+                </antcall>
+            </then>
+        </if>
+    </target>
+
+    <target name="monitorHost" depends="init">
+        <sshexec host="${host}"
+                 trust="yes"
+                 username="${user}"
+                 keyfile="${keyfile}"
+                 command="mkdir -p ${nmon.test.directory}"/>
+        <sshexec host="${host}"
+                 trust="yes"
+                 username="${user}"
+                 keyfile="${keyfile}"
+                 command="${remote.nmon.home}/run.sh -s ${nmon.samples} -f ${nmon.frequency} -o ${nmon.test.directory}"/>
+    </target>
+
+    <target name="stopMonitoringHost">
+        <sshexec host="${host}"
+                 trust="yes"
+                 username="${user}"
+                 keyfile="${keyfile}"
+                 command="${remote.nmon.home}/stop.sh"
+                 failonerror="false"/>
+    </target>
+
+    <target name="cleanHost">
+        <sshexec host="${host}"
+                 trust="yes"
+                 username="${user}"
+                 keyfile="${keyfile}"
+                 command="${remote.nmon.home}/clean.sh"
+                 failonerror="false"/>
+    </target>
+
+    <target name="copyFiles" depends="init">
+        <mkdir dir="${local.results.directory}"/>
+        <if>
+            <equals arg1="${copy-jmeter-files}" arg2="1"/>
+            <then>
+                <scp file="${user}@${host}:${jmeter.test.directory}/*" todir="${local.results.directory}" trust="yes"  keyfile="${keyfile}"/>
+            </then>
+        </if>
+        <scp file="${user}@${host}:${nmon.test.directory}/*" todir="${local.results.directory}" trust="yes"  keyfile="${keyfile}"/>
+        <delete>
+            <fileset dir="${local.results.directory}"  includes="**/*.pid, **/parsible.log"/>
+        </delete>
+    </target>
+
+
+    <target name="runTest" depends="init" if="loadgenerator.host">
+        <!-- create working directory for test plan and results -->
+        <trycatch>
+            <try>
+                <sshexec host="${loadgenerator.host}"
+                         trust="yes"
+                         username="${loadgenerator.user}"
+                         keyfile="${keyfile}"
+                         command="${remote.jmeter.home}/bin/jmeter -v"/>
+            </try>
+            <catch>
+                <exec executable="wget" failonerror="true">
+                    <arg line="http://mirror.reverse.net/pub/apache/jmeter/binaries/apache-jmeter-2.13.tgz"/>
+                </exec>
+                <exec executable="wget" failonerror="true">
+                    <arg line="http://jmeter-plugins.org/downloads/file/JMeterPlugins-Standard-1.2.1.zip"/>
+                </exec>
+                <exec executable="wget" failonerror="true">
+                    <arg line="http://jmeter-plugins.org/downloads/file/JMeterPlugins-Extras-1.3.0.zip"/>
+                </exec>
+                <exec executable="wget" failonerror="true">
+                    <arg line="http://jmeter-plugins.org/downloads/file/JMeterPlugins-ExtrasLibs-1.3.0.zip"/>
+                </exec>
+                <sshexec host="${loadgenerator.host}"
+                         trust="yes"
+                         username="${loadgenerator.user}"
+                         keyfile="${keyfile}"
+                         resultproperty="jmeter.result"
+                         command="mkdir -p ${remote.jmeter.home}"/>
+                <scp file="apache-jmeter-*.tgz" todir="${loadgenerator.user}@${loadgenerator.host}/${remote.jmeter.home}" trust="yes" keyfile="${keyfile}"/>
+                <scp file="JmeterPlugins*.zip" todir="${loadgenerator.user}@${loadgenerator.host}/${remote.jmeter.home}" trust="yes" keyfile="${keyfile}"/>
+
+                <sshexec host="${loadgenerator.host}"
+                         trust="yes"
+                         username="${loadgenerator.user}"
+                         keyfile="${keyfile}"
+                         resultproperty="jmeter.result"
+                         command="cd ${remote.jmeter.home};
+                            tar -xzvf *.tgz --strip-components 1;
+                            unzip -u JMeterPlugins-*.zip;"/>
+            </catch>
+        </trycatch>
+        <sshexec host="${loadgenerator.host}"
+                 trust="yes"
+                 username="${loadgenerator.user}"
+                 keyfile="${keyfile}"
+                 command="mkdir -p ${jmeter.test.directory}"/>
+        <!-- create test plan -->
+        <sshexec host="${loadgenerator.host}"
+                 trust="yes"
+                 username="${loadgenerator.user}"
+                 keyfile="${keyfile}"
+                 command="cd ${remote.automation.home}/tool; php jmx-generator.php --scenario=${test.script}"/>
+        <!-- execute test plan -->
+        <sshexec host="${loadgenerator.host}"
+                 trust="yes"
+                 username="${loadgenerator.user}"
+                 keyfile="${keyfile}"
+                 command="${remote.automation.home}/scripts/jmeter/startJmeterScript.sh -j ${remote.jmeter.home} -b  -s ${remote.automation.home}/tool/${test.script}.jmx -o ${jmeter.test.directory} -a ${jmeter.args} "/>
+    </target>
+
+    <!-- ======================== -->
+    <!-- Analyze Results          -->
+    <!-- ======================== -->
+
+    <target name="analyzeResults" depends="init">
+        <exec executable="${local.automation.home}/scripts/client/analyze-results.sh" dir="${local.results.directory}">
+        </exec>
+    </target>
+
+    <!-- ======================== -->
+    <!-- Generate Graphs          -->
+    <!-- ======================== -->
+
+    <target name="generateNmonGraphs" depends="init" if="nmon.visualizer.jar">
+        <java jar="${nmon.visualizer.jar}"
+              fork="true">
+            <arg value="com.ibm.nmon.ReportGenerator"/>
+            <arg value="${local.results.directory}"/>
+            <arg value="-t"/>
+            <arg value="${results.start.offset}" />
+        </java>
+    </target>
+    <target name="generateJmeterGraphs" depends="init" if="jmeter.cmdrunner.jar">
+        <exec executable="${local.automation.home}/scripts/client/jmeter-plugins-cmd.sh">
+            <arg value="${local.results.directory}" />
+            <arg value="${results.start.offset}" />
+            <arg value="${include.label.regex}" />
+            <arg value="${jmeter.cmdrunner.jar}" />
+        </exec>
+    </target>
+
+    <target name="generateJmeterReports" depends="init" if="jmeter.cmdrunner.jar">
+        <exec command="java -jar ${jmeter.cmdrunner.jar} --tool Reporter --generate-csv ${local.results.directory}/jmeter-summary.csv --input-jtl ${local.results.directory}/jmeter-results.jtl --plugin-type AggregateReport" />
+    </target>
+
+</project>

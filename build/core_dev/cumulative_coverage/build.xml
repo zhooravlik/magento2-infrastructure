@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Ant build configuration for cumulative (integration plus unit) coverage generation
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="Cumulative code coverage" basedir="../../../../" default="run">
+    <import file="../util.xml"/>
+
+    <target name="run" depends="_server_info" description="Run cumulative (integration plus unit) coverage calculation process">
+        <antcall target="_run_phpcov_merge"/>
+    </target>
+
+    <target name="_phpcov_install" if="env.COMPOSER_HOME"  depends="_composer_install">
+        <echo message="Run 'composer require' for directory '${product_root_dir}'"/>
+
+        <exec executable="/usr/local/bin/composer" dir="${product_root_dir}" failonerror="true">
+            <env key="COMPOSER_PROCESS_TIMEOUT" value="600"/>
+            <arg line="require phpunit/phpcov:* --no-interaction --ignore-platform-reqs"/>
+        </exec>
+    </target>
+
+    <target name="_run_phpcov_merge" depends="_phpcov_install, _product_location">
+        <!--Downloaded artifacts should have absolute paths to Magento instances replaced with path on current agent.-->
+        <replaceregexp byline="true">
+            <regexp pattern="\/opt\/bamboo\/agents\/agent\d\/xml-data\/build-dir\/[\w\d-]+\/magento2ce"/>
+            <substitution expression="${product_root_dir}"/>
+            <fileset dir="${product_root_dir}/cov">
+                <include name="*.cov"/>
+            </fileset>
+        </replaceregexp>
+
+        <!-- Invoke merging process - html format -->
+        <echo message="Run 'phpcov merge html' for directory '${product_root_dir}'" />
+        <mkdir dir="${product_root_dir}/coverageHtml"/>
+        <exec executable="dev/build/bin/invoke-with-xdebug.sh" dir="${product_root_dir}" failonerror="true">
+            <arg line=" -c ${product_root_dir}/php.ini vendor/bin/phpcov merge --html='coverageHtml' cov"/>
+        </exec>
+
+        <!-- Invoke merging process - crap4j format -->
+        <echo message="Run 'phpcov merge crap4j' for directory '${product_root_dir}'" />
+        <exec executable="dev/build/bin/invoke-with-xdebug.sh" dir="${product_root_dir}" failonerror="true">
+            <arg line=" -c ${product_root_dir}/php.ini vendor/bin/phpcov merge --crap4j='phpunit.crap4j.xml' cov"/>
+        </exec>
+    </target>
+</project>

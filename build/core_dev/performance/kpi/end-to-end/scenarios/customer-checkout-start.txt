@@ -1,0 +1,16 @@
+logData 0
+navigate http://{host}/customer/account/login/
+exec jQuery('input[name^="login[username]"]').val('user_2@example.com').change();
+exec jQuery('input[name^="login[password]"]').val('123123q').change();
+execAndWait jQuery('#send2').click();
+navigate http://{host}/checkout/cart/
+execAndWait jQuery("#empty_cart_button").click();
+navigate http://{host}/simple-product-120.html
+clickAndWait title=Add to Cart
+navigate http://{host}/configurable-product-21.html
+exec jQuery('select[name^="super_attribute"]').val(13);
+clickAndWait title=Add to Cart
+logData 1
+navigate http://{host}/checkout/
+execAndWait var a=setInterval(function(){if(jQuery('#waitElementId').length>0){clearInterval(a);}},10);
+

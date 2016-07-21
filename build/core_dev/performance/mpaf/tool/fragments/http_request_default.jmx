@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.6" jmeter="2.11 r1554548">
+  <hashTree>
+    <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain">${host}</stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol">http</stringProp>
+      <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+      <stringProp name="HTTPSampler.path"></stringProp>
+      <stringProp name="HTTPSampler.implementation">Java</stringProp>
+      <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+    </ConfigTestElement>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

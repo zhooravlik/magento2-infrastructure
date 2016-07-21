@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <BeanShellSampler guiclass="BeanShellSamplerGui" testclass="BeanShellSampler" testname="Shell: Get First Page" enabled="true">
+      <stringProp name="BeanShellSampler.query">pagesCount = Integer.parseInt(vars.get(&quot;pages_count_order&quot;));
+if (pagesCount == 1) {
+	vars.put(&quot;first_page&quot; , &quot;1&quot;);
+} else {
+	vars.put(&quot;first_page&quot; , &quot;2&quot;);
+}
+</stringProp>
+      <stringProp name="BeanShellSampler.filename"></stringProp>
+      <stringProp name="BeanShellSampler.parameters"></stringProp>
+      <boolProp name="BeanShellSampler.resetInterpreter">false</boolProp>
+    </BeanShellSampler>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

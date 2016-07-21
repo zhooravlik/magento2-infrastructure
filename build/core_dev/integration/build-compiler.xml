@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Apache Ant's build file for testing single-tenant compilers
+ *
+ * @copyright Copyright (c) 2014 X.commerce, Inc. (http://www.magentocommerce.com)
+ */
+-->
+<project name="Single-tenant compiler testing" basedir="../../../../" default="run">
+    <import file="../util.xml"/>
+
+    <target name="run" depends="_product_location, install-magento" description="Run compiler">
+        <echo message="Run compiler"/>
+        <delete includeEmptyDirs="true">
+            <fileset dir="${product_root_dir}/var" includes="**/*"/>
+        </delete>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${product_root_dir}/bin/magento setup:di:compile"/>
+        </exec>
+    </target>
+
+    <target name="install-magento" depends="_composer_install" description="Install Magento Application">
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${product_root_dir}/bin/magento setup:install
+                    --language='en_US'
+                    --timezone='America/Los_Angeles'
+                    --currency='USD'
+                    --db-host='${env.db_host}'
+                    --db-name='${env.db_name}'
+                    --db-user='${env.db_user}'
+                    --db-password='${env.db_password}'
+                    --use-secure='0'
+                    --use-secure-admin='0'
+                    --use-rewrites='1'
+                    --admin-lastname='Admin'
+                    --admin-firstname='Admin'
+                    --admin-email='admin@example.com'
+                    --admin-use-security-key='0'
+                    --base-url='http://localhost'
+                    --base-url-secure='https://localhost'
+                    --backend-frontname='backend'
+                    --admin-user='admin'
+                    --admin-password='123123q'"
+                    />
+        </exec>
+    </target>
+
+</project>

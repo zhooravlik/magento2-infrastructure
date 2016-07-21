@@ -1,0 +1,14 @@
+# Files or directories that are not part of any Magento product edition (for any reason, can be non-technical)
+#
+app/etc/aliases_to_classes_map.json
+dev/build/core_dev/performance/benchmark
+
+dev/tests/static/testsuite/Magento/Test/Legacy/FilesystemTest.php
+
+dev/tests/performance/testsuite/fixtures/benchmark
+dev/tests/performance/apply_fixture.php
+dev/tests/performance/regenerate_profile.php
+dev/tests/performance/benchmark_logs_merge.php
+
+app/code/Magento/Doc
+app/design/doc

@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Apache Ant's build file for core development integration tests
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="Core Development Integration Tests" basedir="../../../../" default="integration_tests_ee_mysql">
+    <import file="../util.xml"/>
+
+    <target name="_updater_composer_install" if="env.COMPOSER_HOME">
+        <mkdir dir="${env.COMPOSER_HOME}"/>
+        <echo message="Run 'composer install' for directory '${product_root_dir}/update'"/>
+        <exec executable="/usr/local/bin/composer" dir="${product_root_dir}/update" failonerror="true">
+            <env key="COMPOSER_PROCESS_TIMEOUT" value="600"/>
+            <arg line="install --no-interaction --ignore-platform-reqs"/>
+        </exec>
+    </target>
+
+    <target name="_integration_tests_configuration" depends="_product_location,_composer_install,_updater_composer_install" description="Generation of configuration for integration tests">
+        <condition property="db_vendor_name" value="mysql">
+            <not><isset property="db_vendor_name"/></not>
+        </condition>
+        <condition property="db_table_prefix" value="">
+            <not><isset property="db_table_prefix"/></not>
+        </condition>
+        <condition property="app_mode" value="developer">
+            <not><isset property="app_mode"/></not>
+        </condition>
+
+        <copy file="${basedir}/dev/build/core_dev/integration/.htaccess.sample" failonerror="true" overwrite="true"
+              tofile="${product_root_dir}/.htaccess"/>
+
+        <copy file="${basedir}/dev/build/core_dev/integration/phpunit.xml" failonerror="true" overwrite="true"
+              tofile="${product_root_dir}/dev/tests/integration/phpunit.xml"/>
+
+        <copy file="${basedir}/dev/build/core_dev/integration/parallel-run.php" failonerror="true" overwrite="true"
+              tofile="${product_root_dir}/dev/tests/integration/parallel-run.php"/>
+
+        <script language="javascript"><![CDATA[
+            var errorMessages = [];
+
+            var variables = {
+                db_host: '',
+                db_name: '',
+                db_user: '',
+                db_password: '',
+            };
+            for (var name in variables) {
+                if (project.getProperty('env.' + name) === null) {
+                    errorMessages.push('Environment variable "' + name + '" must be defined' + variables[name] + '.');
+                }
+            }
+
+            if (errorMessages.length > 0) {
+                project.setProperty('error_message', errorMessages.join('\n'));
+            }
+
+            if (project.getProperty('env.bamboo_max_instances') === null) {
+                var max_instances = 1;
+            } else {
+                project.setProperty('max_instances', project.getProperty('env.bamboo_max_instances'));
+            }
+
+            if (project.getProperty('env.bamboo_additional_options') === null) {
+                var additional_options = '';
+            } else {
+                project.setProperty('additional_options', project.getProperty('env.bamboo_additional_options'));
+            }
+        ]]></script>
+
+        <fail if="error_message" message="${error_message}"/>
+
+        <script language="javascript"><![CDATA[
+            var maxInstances = project.getProperty('max_instances');
+
+            if (maxInstances > 1) {
+                project.setProperty('tests_cleanup', '');
+
+                var parallelConfigTask = project.createTask('antcall');
+                parallelConfigTask.setTarget('_parallel_run_phpunit_configuration');
+                parallelConfigTask.setInheritAll(true);
+                var configParam = parallelConfigTask.createParam();
+                configParam.setName('configuration_file');
+                configParam.setValue(project.getProperty('basedir') + '/dev/build/core_dev/integration/phpunit.xml');
+                parallelConfigTask.execute();
+
+                var parallel = project.createTask('parallel');
+                for (var instanceIndex = 0; instanceIndex < maxInstances; instanceIndex++) {
+                    var antcall = project.createTask('antcall');
+                    antcall.setTarget('prepare_for_single_process');
+                    antcall.setInheritAll(true);
+
+                    var param = antcall.createParam();
+                    param.setName('instance_index');
+                    param.setValue(instanceIndex);
+
+                    parallel.addTask(antcall);
+                }
+
+                parallel.execute();
+            } else {
+                project.setProperty('tests_cleanup', 'enabled');
+
+                var antcall = project.createTask('antcall');
+                antcall.setTarget('prepare_for_single_process');
+                antcall.setInheritAll(true);
+
+                var param = antcall.createParam();
+                param.setName('instance_index');
+                param.setValue(0);
+
+                antcall.execute();
+            }
+        ]]></script>
+
+        <delete dir="${product_root_dir}/dev/tests/integration/var/split-by-test" quiet="true"/>
+    </target>
+
+    <target name="prepare_for_single_process">
+        <exec dir="${product_root_dir}/dev/tests/integration" executable="mysql" failonerror="true">
+            <arg line="-u${env.db_user} -p${env.db_password} -e 'DROP DATABASE IF EXISTS ${env.db_name}_${instance_index}; CREATE DATABASE ${env.db_name}_${instance_index}'"/>
+        </exec>
+
+        <copy file="${basedir}/dev/build/core_dev/integration/install-config-${db_vendor_name}.php"
+              tofile="${product_root_dir}/dev/tests/integration/etc/install-config-${db_vendor_name}-${instance_index}.php" overwrite="true"/>
+        <ant antfile="${basedir}/dev/build/core_dev/util.xml" target="_database_credential_substitution">
+            <property name="db_config_file" value="${product_root_dir}/dev/tests/integration/etc/install-config-${db_vendor_name}-${instance_index}.php"/>
+            <property name="env.db_name" value="${env.db_name}_${instance_index}"/>
+        </ant>
+        <replace file="${product_root_dir}/dev/tests/integration/etc/install-config-${db_vendor_name}-${instance_index}.php">
+            <replacefilter token="{{db_table_prefix}}" value="${db_table_prefix}"/>
+        </replace>
+
+        <copy file="${basedir}/dev/build/core_dev/integration/phpunit.xml"
+              tofile="${product_root_dir}/dev/tests/integration/phpunit-${instance_index}.xml" overwrite="true"/>
+        <replace file="${product_root_dir}/dev/tests/integration/phpunit-${instance_index}.xml">
+            <replacefilter token="{{local_config_file}}" value="etc/install-config-${db_vendor_name}-${instance_index}.php"/>
+            <replacefilter token="{{app_mode}}" value="${app_mode}"/>
+            <replacefilter token="{{instance_index}}" value="${instance_index}"/>
+            <replacefilter token="{{tests_cleanup}}" value="${tests_cleanup}"/>
+            <replacefilter token="{{parallel_thread}}" value="${instance_index}"/>
+        </replace>
+
+        <mkdir dir="${product_root_dir}/dev/tests/integration/var/logs-${instance_index}"/>
+    </target>
+
+    <target name="_parallel_run_phpunit_configuration" description="Phpunit configuration for parallel run">
+        <fail unless="configuration_file" message="Phpunit configuration variable 'configuration_file' must be defined"/>
+        <replace file="${configuration_file}">
+            <replacefilter token="--parallel_run_placeholder" value="-- --&gt;"/>
+            <replacefilter token="parallel_run_placeholder--" value="&lt;!-- --"/>
+        </replace>
+    </target>
+
+    <target name="_integration_tests_magento" depends="_integration_tests_configuration" description="Product integration tests">
+        <script language="javascript"><![CDATA[
+            importClass(java.io.File);
+            var maxInstances = project.getProperty('max_instances');
+            var productRootDir = project.getProperty('product_root_dir');
+            var baseDir = project.getProperty('basedir');
+            var additionalOptions = project.getProperty('additional_options');
+
+            if (maxInstances > 1) {
+                var parallel_run_exec = project.createTask('exec');
+                parallel_run_exec.setExecutable('php');
+                parallel_run_exec.setDir(new File(productRootDir + '/dev/tests/integration'));
+                parallel_run_exec.setFailonerror(true);
+                var arg = parallel_run_exec.createArg();
+                var command = '-f parallel-run.php testsuite/Magento/ -- --log-junit ' + baseDir +
+                '/integration_tests_magento.xml --max-instances ' + maxInstances + ' ' + additionalOptions;
+                arg.setLine(command);
+                parallel_run_exec.execute();
+            } else {
+                var phpunit_exec = project.createTask('exec');
+                phpunit_exec.setExecutable('phpunit');
+                phpunit_exec.setDir(new File(productRootDir + '/dev/tests/integration'));
+                phpunit_exec.setFailonerror(true);
+                var arg = phpunit_exec.createArg();
+                var command = '-c phpunit-0.xml --stderr --log-junit ' + baseDir + '/integration_tests_magento.xml';
+                arg.setLine(command);
+                phpunit_exec.execute();
+            }
+        ]]></script>
+    </target>
+
+    <target name="_integration_tests_magento_xdebug" depends="_integration_tests_configuration" description="Product integration tests with Xdebug">
+        <script language="javascript"><![CDATA[
+            importClass(java.io.File);
+            var maxInstances = project.getProperty('max_instances');
+            var productRootDir = project.getProperty('product_root_dir');
+            var baseDir = project.getProperty('basedir');
+            var additionalOptions = project.getProperty('additional_options');
+
+            if (maxInstances > 1) {
+                var parallel_run_exec = project.createTask('exec');
+                parallel_run_exec.setExecutable('php');
+                parallel_run_exec.setDir(new File(productRootDir + '/dev/tests/integration'));
+                parallel_run_exec.setFailonerror(true);
+                var arg = parallel_run_exec.createArg();
+                var command     =   '-f parallel-run.php testsuite/Magento/ -- --log-junit '
+                                +   baseDir
+                                +   '/integration_tests_magento.xml --max-instances '
+                                +   maxInstances
+                                +   ' '
+                                +   additionalOptions
+                                +   ' '
+                                +   '--xdebug'
+                                ;
+                arg.setLine(command);
+                parallel_run_exec.execute();
+            } else {
+                var phpunit_exec = project.createTask('exec');
+                phpunit_exec.setExecutable('../../..//dev/build/bin/phpunit-with-xdebug.sh');
+                phpunit_exec.setDir(new File(productRootDir + '/dev/tests/integration'));
+                phpunit_exec.setFailonerror(true);
+                var arg = phpunit_exec.createArg();
+                var command = '-c phpunit-0.xml --stderr --log-junit ' + baseDir + '/integration_tests_magento_xdebug.xml' + ' ' + '--debug';
+                arg.setLine(command);
+                phpunit_exec.execute();
+            }
+        ]]></script>
+    </target>
+
+    <target name="integration_tests_ee_dev_mysql" depends="_server_info,_enterprise_edition" description="Integration tests in dev mode on MySQL for EE">
+        <antcall target="_integration_tests_magento"/>
+    </target>
+
+    <target name="integration_tests_ee_mysql" depends="_server_info,_enterprise_edition" description="Integration tests on MySQL for EE">
+        <antcall target="_integration_tests_magento">
+            <param name="app_mode" value="default"/>
+        </antcall>
+    </target>
+
+    <target name="integration_tests_ee_dev_mysql_tpfx" depends="_server_info,_enterprise_edition" description="Integration tests in dev mode with table prefix on MySQL for EE">
+        <antcall target="_integration_tests_magento">
+            <param name="db_table_prefix" value="pfx_"/>
+        </antcall>
+    </target>
+
+    <target name="integration_tests_b2b_dev_mysql_tpfx" depends="_server_info,_b2b_edition" description="Integration tests in dev mode with table prefix on MySQL for EE">
+        <antcall target="_integration_tests_magento">
+            <param name="db_table_prefix" value="pfx_"/>
+            <param name="product_edition_code" value="b2b"/>
+        </antcall>
+    </target>
+
+    <target name="integration_tests_ee_dev_xd_mysql" depends="_server_info,_enterprise_edition" description="Integration tests in dev mode with Xdebug on MySQL for EE">
+        <antcall target="_integration_tests_magento_xdebug"/>
+    </target>
+
+    <target name="integration_tests_ee_xd_mysql" depends="_server_info,_enterprise_edition" description="Integration tests with Xdebug on MySQL for EE">
+        <antcall target="_integration_tests_magento_xdebug">
+            <param name="app_mode" value="default"/>
+        </antcall>
+    </target>
+
+    <target name="integration_tests_ee_dev_xd_mysql_tpfx" depends="_product_location,_server_info,_enterprise_edition" description="Integration tests in dev mode with Xdebug and table prefix on MySQL for EE">
+        <antcall target="_integration_tests_magento_xdebug">
+            <param name="db_table_prefix" value="pfx_"/>
+        </antcall>
+    </target>
+
+    <target name="integration_tests_ce_dev_mysql" depends="_server_info,_community_edition" description="Integration tests in dev mode on MySQL for CE">
+        <antcall target="_integration_tests_magento"/>
+    </target>
+
+    <target name="integration_tests_ce_mysql" depends="_server_info,_community_edition" description="Integration tests on MySQL for CE">
+        <antcall target="_integration_tests_magento">
+            <param name="app_mode" value="default"/>
+        </antcall>
+    </target>
+
+    <target name="vendor_integration_tests_ce_dev_mysql_tpfx" depends="_server_info" description="Integration tests in dev mode with table prefix on MySQL for CE">
+        <antcall target="_integration_tests_magento">
+            <param name="db_table_prefix" value="pfx_"/>
+            <param name="product_edition_code" value="ce"/>
+        </antcall>
+    </target>
+
+    <target name="integration_tests_ce_dev_mysql_tpfx" depends="_server_info,_community_edition" description="Integration tests in dev mode with table prefix on MySQL for CE">
+        <antcall target="_integration_tests_magento">
+            <param name="db_table_prefix" value="pfx_"/>
+        </antcall>
+    </target>
+
+    <target name="integration_tests_ce_dev_xd_mysql" depends="_server_info,_community_edition" description="Integration tests in dev mode with Xdebug on MySQL for CE">
+        <antcall target="_integration_tests_magento_xdebug"/>
+    </target>
+
+    <target name="integration_tests_ce_xd_mysql" depends="_server_info,_community_edition" description="Integration tests with Xdebug on MySQL for CE">
+        <antcall target="_integration_tests_magento_xdebug">
+            <param name="app_mode" value="default"/>
+        </antcall>
+    </target>
+
+    <target name="_integration_integrity_tests_magento" depends="_integration_tests_configuration" description="Product integration integrity tests">
+        <delete file="${product_root_dir}/app/etc/paths.php"/>
+        <exec dir="${product_root_dir}/dev/tests/integration" executable="phpunit" failonerror="true">
+            <arg line="-c phpunit-0.xml --log-junit ${product_root_dir}/integration_integrity_tests_magento.xml testsuite/Magento/Test/Integrity"/>
+        </exec>
+    </target>
+
+    <target name="integration_integrity_tests_ee_dev_mysql" depends="_server_info,_enterprise_edition" description="Integration integrity tests in dev mode on MySQL for EE">
+        <antcall target="_integration_integrity_tests_magento"/>
+    </target>
+
+    <target name="integration_integrity_tests_ee_mysql" depends="_server_info,_enterprise_edition" description="Integration integrity tests on MySQL for EE">
+        <antcall target="_integration_integrity_tests_magento">
+            <param name="app_mode" value="default"/>
+        </antcall>
+    </target>
+
+
+    <target name="integration_integrity_tests_b2b_mysql" depends="_server_info,_b2b_edition" description="Integration integrity tests on MySQL for B2B">
+        <antcall target="_integration_integrity_tests_magento">
+            <param name="app_mode" value="default"/>
+        </antcall>
+    </target>
+    
+    <target name="vendor_integration_integrity_tests_ee_mysql" depends="_server_info" description="Integration integrity tests on MySQL for EE">
+        <antcall target="_integration_integrity_tests_magento">
+            <param name="app_mode" value="default"/>
+        </antcall>
+    </target>
+
+    <target name="integration_integrity_tests_ce_dev_mysql" depends="_server_info,_community_edition" description="Integration integrity tests in dev mode on MySQL for CE">
+        <antcall target="_integration_integrity_tests_magento"/>
+    </target>
+
+    <target name="integration_integrity_tests_ce_mysql" depends="_server_info,_community_edition" description="Integration integrity tests on MySQL for CE">
+        <antcall target="_integration_integrity_tests_magento">
+            <param name="app_mode" value="default"/>
+        </antcall>
+    </target>
+
+    <target name="integration_tests_ce_xd_mysql_code_coverage" depends="_product_location" description="Code Coverage CE Integration Tests with Xdebug">
+        <antcall target="_code_coverage_configuration">
+            <param name="configuration_file" value="${product_root_dir}/dev/build/core_dev/integration/phpunit.xml"/>
+        </antcall>
+        <antcall target="integration_tests_ce_xd_mysql">
+            <param name="phpunit_debug" value="--debug"/>
+        </antcall>
+    </target>
+
+    <target name="integration_tests_ee_xd_mysql_code_coverage" depends="_product_location" description="Code Coverage EE Integration Tests with Xdebug">
+        <antcall target="_code_coverage_configuration">
+            <param name="configuration_file" value="${product_root_dir}/dev/build/core_dev/integration/phpunit.xml"/>
+        </antcall>
+        <antcall target="integration_tests_ee_xd_mysql">
+            <param name="phpunit_debug" value="--debug"/>
+        </antcall>
+    </target>
+</project>

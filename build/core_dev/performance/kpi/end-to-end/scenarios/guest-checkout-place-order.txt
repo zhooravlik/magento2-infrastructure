@@ -1,0 +1,22 @@
+logData 0
+navigate http://{host}/simple-product-120.html
+clickAndWait title=Add to Cart
+navigate http://{host}/configurable-product-21.html
+exec jQuery('select[name^="super_attribute"]').val(13);
+clickAndWait title=Add to Cart
+navigate http://{host}/checkout/
+execAndWait var a=setInterval(function(){if(jQuery('#customer-email').length>0){clearInterval(a);}},10);
+exec jQuery('input[name^="username"]').val('user_xxx@example.com').change();
+exec jQuery('input[name^="shippingAddress[firstname]"]').val('Anthony').keyup();
+exec jQuery('input[name^="shippingAddress[lastname]"]').val('Nealy').keyup();
+exec jQuery('input[name^="shippingAddress[street][0]"]').val('123 Freedom Blvd. #123').keyup();
+exec jQuery('input[name^="shippingAddress[city]"]').val('Fayetteville').keyup();
+exec jQuery('select[name^="shippingAddress[region_id]"]').val('5').change();
+exec jQuery('input[name^="shippingAddress[postcode]"]').val('123123').keyup();
+exec jQuery('select[name^="shippingAddress[country_id]"]').val('US').change();
+exec jQuery('input[name^="shippingAddress[telephone]"]').val('022-333-4455').keyup();
+execAndWait var a=setInterval(function(){if(jQuery('#s_method_flatrate').length>0){clearInterval(a);}},10);
+exec jQuery('input[id^="s_method_flatrate"').click();
+execAndWait jQuery('#shipping-method-buttons-container button[data-role="opc-continue"]').click();
+logData 1
+clickAndWait title=Place Order

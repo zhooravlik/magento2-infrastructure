@@ -1,0 +1,4 @@
+ProductName,SKU,Description,ShortDescription,MinPrice,MaxPrice,Price,TaxClass
+Simple+Product,product_dynamic,Full+simple+product+description,Short+simple+product+description,5,50,10,2
+Simple+Product,product_dynamic,Full+simple+product+description,Short+simple+product+description,5,50,10,2
+Configurable+Product,Configurable+Product,Configurable+product+description,,5,50,10,2

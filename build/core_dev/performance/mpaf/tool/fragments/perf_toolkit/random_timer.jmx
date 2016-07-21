@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <GaussianRandomTimer guiclass="GaussianRandomTimerGui" testclass="GaussianRandomTimer" testname="Random Timer" enabled="true">
+      <stringProp name="ConstantTimer.delay">${think_time_delay_offset}</stringProp>
+      <stringProp name="RandomTimer.range">${think_time_deviation}</stringProp>
+    </GaussianRandomTimer>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

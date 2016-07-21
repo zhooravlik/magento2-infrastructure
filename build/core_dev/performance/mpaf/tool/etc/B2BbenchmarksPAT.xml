@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scenario name="B2BbenchmarksPAT" title="Benchmarks (PAT) for B2B">
+    <import name="http_request_default" />
+    <import name="http_header_manager" />
+    <import name="http_cookie_manager" />
+    <import name="setup">
+        <import name="admin_login/assert_logged_in" reference="SetUp - Login Submit Form" before="-"/>
+        <import name="customer_checkout/ajax_load_login_form" after="SetUp - BeanShell Sampler: Validate properties and count users" />
+    </import>
+    <import name="customer_checkout_PAT_tmpl">
+        <import name="http_cookie_manager" />
+        <import name="checkout_PAT/set_values" />
+        <import name="common/open_home_page" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/open_login_page" />
+        <import name="customer_checkout/ajax_load_login_form" />
+        <import name="common/login" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/open_category" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/simple_product_view_1" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/simple_product_add_to_cart_1" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/configurable_product_view_1" />
+        <import name="checkout_PAT/constant_timer" />
+        <import name="common/configurable_product_add_to_cart_1" />
+        <import name="common/logout" />
+        <import name="checkout_PAT/constant_timer" />
+    </import>
+    <import name="tear_down" />
+    <import name="checkout_PAT/aggregate_graph" />
+    <import name="view_results_tree" />
+</scenario>

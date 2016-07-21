@@ -1,0 +1,5 @@
+# Service files necessary for running tools that prepare a build
+
+dev/build
+dev/tools/Magento/Tools/Composer
+dev/tests/static/testsuite/Magento/Test/Integrity/ComposerTest.php

@@ -1,0 +1,2225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <TestFragmentController guiclass="TestFragmentControllerGui" testclass="TestFragmentController" testname="Admin Edit Product" enabled="true"/>
+    <hashTree>
+      <BeanShellSampler guiclass="BeanShellSamplerGui" testclass="BeanShellSampler" testname="Shell: Generate Unique Ids for each Thread" enabled="true">
+        <stringProp name="TestPlan.comments">Passing arguments between threads</stringProp>
+        <stringProp name="BeanShellSampler.query">import java.util.ArrayList;
+//import org.apache.jmeter.protocol.http.util.Base64Encoder;
+import java.util.HashMap;
+
+int simpleCount = Integer.parseInt(vars.get(&quot;simple_products_ids_matchNr&quot;));
+int configCount = Integer.parseInt(vars.get(&quot;configurable_products_ids_matchNr&quot;));
+int productCount;
+if (simpleCount &gt; configCount){
+	productCount = configCount;
+} else {
+	productCount = simpleCount;
+}
+
+int threadsNumber = Integer.parseInt(vars.get(&quot;adminEditProduct&quot;));
+//Current thread number starts from 0
+int currentThreadNum = ctx.getThreadNum();
+
+String siterator = vars.get(&quot;threadIterator_&quot; + currentThreadNum.toString());
+int iterator;
+if(siterator == null){
+	iterator = 1;
+	vars.put(&quot;threadIterator_&quot; + currentThreadNum.toString() , &quot;1&quot;);
+} else {
+	iterator = Integer.parseInt(siterator);
+	iterator ++;
+	vars.put(&quot;threadIterator_&quot; + currentThreadNum.toString() , iterator.toString());
+}
+
+//Number of products for one thread
+int productClusterLength = productCount / threadsNumber;
+//Index of the current product from the cluster
+int i = productClusterLength * currentThreadNum + iterator;
+
+if (iterator &gt;= productClusterLength) {
+    vars.put(&quot;threadIterator_&quot; + currentThreadNum.toString(), &quot;1&quot;);
+    iterator = 1;
+}
+
+simpleProductId = vars.get(&quot;simple_products_ids_&quot; + i.toString());
+configurableProductId = vars.get(&quot;configurable_products_ids_&quot; + i.toString());
+
+vars.put(&quot;simple_product_id&quot;, simpleProductId);
+vars.put(&quot;configurable_product_id&quot;, configurableProductId);
+
+//The first simple product will be used for related/cross-sell/upsell
+String relatedProductId = vars.get(&quot;simple_products_ids_1&quot;);
+vars.put(&quot;related_product_id&quot;, relatedProductId);
+vars.put(&quot;related_product_post_param_value&quot;, relatedProductId+&quot;=cG9zaXRpb249&quot;);
+
+//Debug info
+vars.put(&quot;threadNum&quot; , currentThreadNum.toString());
+vars.put(&quot;productClusterLength&quot;, productClusterLength.toString());
+vars.put(&quot;i&quot;, i.toString());
+log.warn(&quot;simpleCount = &quot; + simpleCount.toString());
+log.warn(&quot;configCount = &quot; + configCount.toString());
+log.warn(&quot;productCount = &quot; + productCount.toString());
+log.warn(&quot;productClusterLength = &quot; + productClusterLength.toString());
+log.warn(&quot;iterator = &quot; + iterator.toString());
+log.warn(&quot;currentThreadNum = &quot; + currentThreadNum.toString());
+
+//String simpleSearchData = &quot;entity_id%5Bfrom%5D=&quot; + simpleProductId + &quot;&amp;price%5Bcurrency%5D=USD&quot;;
+//String configurableSearchData = &quot;entity_id%5Bfrom%5D=&quot; + configurableProductId + &quot;&amp;price%5Bcurrency%5D=USD&quot;;
+//vars.put(&quot;simple_search_data&quot;, new String(Base64Encoder.encode(simpleSearchData)));
+//vars.put(&quot;configurable_search_data&quot;, new String(Base64Encoder.encode(configurableSearchData)));</stringProp>
+        <stringProp name="BeanShellSampler.filename"></stringProp>
+        <stringProp name="BeanShellSampler.parameters"></stringProp>
+        <boolProp name="BeanShellSampler.resetInterpreter">false</boolProp>
+      </BeanShellSampler>
+      <hashTree/>
+      <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Admin Edit Product - Edit Simple Product" enabled="true">
+        <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+          <collectionProp name="Arguments.arguments"/>
+        </elementProp>
+        <stringProp name="HTTPSampler.domain"></stringProp>
+        <stringProp name="HTTPSampler.port"></stringProp>
+        <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+        <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        <stringProp name="HTTPSampler.protocol"></stringProp>
+        <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+        <stringProp name="HTTPSampler.path">${base_path}${admin_path}/catalog/product/edit/id/${simple_product_id}/</stringProp>
+        <stringProp name="HTTPSampler.method">GET</stringProp>
+        <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+        <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+        <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+        <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+        <boolProp name="HTTPSampler.monitor">false</boolProp>
+        <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+      </HTTPSamplerProxy>
+      <hashTree>
+        <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+          <collectionProp name="Asserion.test_strings">
+            <stringProp name="-2052109359">Product Details</stringProp>
+          </collectionProp>
+          <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+          <boolProp name="Assertion.assume_success">false</boolProp>
+          <intProp name="Assertion.test_type">2</intProp>
+        </ResponseAssertion>
+        <hashTree/>
+        <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor: Extract category" enabled="true">
+          <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+          <stringProp name="RegexExtractor.refname">simple_product_category_id</stringProp>
+          <stringProp name="RegexExtractor.regex">&lt;option value=&quot;([^&apos;&quot;]+)&quot; selected=&quot;selected&quot;&gt;Category</stringProp>
+          <stringProp name="RegexExtractor.template">$1$</stringProp>
+          <stringProp name="RegexExtractor.default"></stringProp>
+          <stringProp name="RegexExtractor.match_number">1</stringProp>
+          <stringProp name="Scope.variable">simple_products</stringProp>
+        </RegexExtractor>
+        <hashTree/>
+        <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor: Extract name" enabled="true">
+          <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+          <stringProp name="RegexExtractor.refname">simple_product_name</stringProp>
+          <stringProp name="RegexExtractor.regex">data-ui-id=&quot;product-tabs-attributes-tab-fieldset-element-text-product-name&quot; \s*value=&quot;([^&quot;&quot;]+)&quot;</stringProp>
+          <stringProp name="RegexExtractor.template">$1$</stringProp>
+          <stringProp name="RegexExtractor.default"></stringProp>
+          <stringProp name="RegexExtractor.match_number">1</stringProp>
+          <stringProp name="Scope.variable">simple_products</stringProp>
+        </RegexExtractor>
+        <hashTree/>
+        <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor: Extract sku" enabled="true">
+          <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+          <stringProp name="RegexExtractor.refname">simple_product_sku</stringProp>
+          <stringProp name="RegexExtractor.regex">data-ui-id=&quot;product-tabs-attributes-tab-fieldset-element-text-product-sku&quot; \s*value=&quot;([^&quot;&quot;]+)&quot;</stringProp>
+          <stringProp name="RegexExtractor.template">$1$</stringProp>
+          <stringProp name="RegexExtractor.default"></stringProp>
+          <stringProp name="RegexExtractor.match_number">1</stringProp>
+          <stringProp name="Scope.variable">simple_products</stringProp>
+        </RegexExtractor>
+        <hashTree/>
+      </hashTree>
+      <BeanShellSampler guiclass="BeanShellSamplerGui" testclass="BeanShellSampler" testname="Shell: Set updated values" enabled="true">
+        <stringProp name="TestPlan.comments">Passing arguments between threads</stringProp>
+        <stringProp name="BeanShellSampler.query">//Additional category to be added
+int categoryId = Integer.parseInt(vars.get(&quot;simple_product_category_id&quot;));
+vars.put(&quot;category_additional&quot;, (categoryId+1).toString());
+//New price
+vars.put(&quot;price_new&quot;, &quot;9999&quot;);
+//New special price
+vars.put(&quot;special_price_new&quot;, &quot;8888&quot;);
+//New quantity
+vars.put(&quot;quantity_new&quot;, &quot;100600&quot;);</stringProp>
+        <stringProp name="BeanShellSampler.filename"></stringProp>
+        <stringProp name="BeanShellSampler.parameters"></stringProp>
+        <boolProp name="BeanShellSampler.resetInterpreter">false</boolProp>
+      </BeanShellSampler>
+      <hashTree/>
+      <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Admin Edit Product - Edit Simple Product Validate" enabled="true">
+        <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="ajax" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">true</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">ajax</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="isAjax" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">true</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">isAjax</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="form_key" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${admin_form_key}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">form_key</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[name]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_name}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[name]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[sku]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_sku}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[sku]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[price]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${price_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[price]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[tax_class_id]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">2</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[tax_class_id]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[quantity_and_stock_status][qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${quantity_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[quantity_and_stock_status][qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[quantity_and_stock_status][is_in_stock]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[quantity_and_stock_status][is_in_stock]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[weight]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1.0000</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[weight]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[category_ids][]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_category_id}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[category_ids][]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[description]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">&lt;p&gt;Full simple product Description ${simple_product_id} Edited&lt;/p&gt;</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[description]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[status]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[status]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[configurable_variations]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[configurable_variations]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="affect_configurable_product_attributes" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">affect_configurable_product_attributes</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[image]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[image]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[small_image]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[small_image]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[thumbnail]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[thumbnail]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[url_key]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_name}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[url_key]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[meta_title]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_name} Meta Title Edited</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[meta_title]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[meta_keyword]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_name} Meta Keyword Edited</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[meta_keyword]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[meta_description]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_name} Meta Description Edited</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[meta_description]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[website_ids][]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[website_ids][]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[special_price]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${special_price_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[special_price]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[special_from_date]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[special_from_date]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[special_to_date]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[special_to_date]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[cost]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[cost]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_manage_stock]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_manage_stock]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][original_inventory_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${quantity_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][original_inventory_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${quantity_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][min_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][min_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_min_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_min_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][min_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][min_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_min_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_min_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][max_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">10000</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][max_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_max_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_max_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][is_qty_decimal]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][is_qty_decimal]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][is_decimal_divided]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][is_decimal_divided]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][backorders]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][backorders]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_backorders]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_backorders]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][notify_stock_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][notify_stock_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_notify_stock_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_notify_stock_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][enable_qty_increments]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][enable_qty_increments]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][qty_increments]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][qty_increments]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_qty_increments]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_qty_increments]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][is_in_stock]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][is_in_stock]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_design]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_design]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_design_from]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_design_from]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_design_to]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_design_to]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_layout_update]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_layout_update]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[page_layout]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[page_layout]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[options_container]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">container2</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[options_container]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="new-variations-attribute-set-id" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">new-variations-attribute-set-id</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="links[related]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${related_product_post_param_value}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">links[related]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="links[upsell]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${related_product_post_param_value}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">links[upsell]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="links[crosssell]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${related_product_post_param_value}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">links[crosssell]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+          </collectionProp>
+        </elementProp>
+        <stringProp name="HTTPSampler.domain"></stringProp>
+        <stringProp name="HTTPSampler.port"></stringProp>
+        <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+        <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        <stringProp name="HTTPSampler.protocol"></stringProp>
+        <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+        <stringProp name="HTTPSampler.path">${base_path}${admin_path}/catalog/product/validate/id/${simple_product_id}/?isAjax=true</stringProp>
+        <stringProp name="HTTPSampler.method">POST</stringProp>
+        <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+        <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+        <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+        <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+        <boolProp name="HTTPSampler.monitor">false</boolProp>
+        <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+      </HTTPSamplerProxy>
+      <hashTree>
+        <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+          <collectionProp name="Asserion.test_strings">
+            <stringProp name="1853918323">{&quot;error&quot;:false}</stringProp>
+          </collectionProp>
+          <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+          <boolProp name="Assertion.assume_success">false</boolProp>
+          <intProp name="Assertion.test_type">2</intProp>
+        </ResponseAssertion>
+        <hashTree/>
+      </hashTree>
+      <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Admin Edit Product - Edit Simple Product Save" enabled="true">
+        <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="ajax" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">true</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">ajax</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="isAjax" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">true</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">isAjax</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="form_key" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${admin_form_key}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">form_key</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[name]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_name}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[name]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[sku]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_sku}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[sku]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[price]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${price_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[price]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[tax_class_id]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">2</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[tax_class_id]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[quantity_and_stock_status][qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${quantity_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[quantity_and_stock_status][qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[quantity_and_stock_status][is_in_stock]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[quantity_and_stock_status][is_in_stock]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[weight]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1.0000</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[weight]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[category_ids][]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_category_id}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[category_ids][]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[category_ids][]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${category_additional}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[category_ids][]</stringProp>
+            </elementProp>
+            <elementProp name="product[description]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">&lt;p&gt;Full simple product Description ${simple_product_id} Edited&lt;/p&gt;</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[description]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[status]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[status]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[configurable_variations]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[configurable_variations]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="affect_configurable_product_attributes" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">affect_configurable_product_attributes</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[image]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[image]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[small_image]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[small_image]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[thumbnail]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[thumbnail]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[url_key]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_name}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[url_key]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[meta_title]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_name} Meta Title Edited</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[meta_title]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[meta_keyword]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_name} Meta Keyword Edited</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[meta_keyword]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[meta_description]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${simple_product_name} Meta Description Edited</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[meta_description]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[website_ids][]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[website_ids][]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[special_price]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${special_price_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[special_price]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[special_from_date]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[special_from_date]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[special_to_date]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[special_to_date]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[cost]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[cost]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_manage_stock]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_manage_stock]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][original_inventory_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${quantity_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][original_inventory_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${quantity_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][min_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][min_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_min_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_min_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][min_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][min_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_min_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_min_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][max_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">10000</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][max_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_max_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_max_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][is_qty_decimal]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][is_qty_decimal]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][is_decimal_divided]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][is_decimal_divided]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][backorders]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][backorders]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_backorders]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_backorders]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][notify_stock_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][notify_stock_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_notify_stock_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_notify_stock_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][enable_qty_increments]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][enable_qty_increments]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][qty_increments]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][qty_increments]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_qty_increments]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_qty_increments]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][is_in_stock]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][is_in_stock]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_design]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_design]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_design_from]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_design_from]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_design_to]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_design_to]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_layout_update]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_layout_update]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[page_layout]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[page_layout]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[options_container]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">container2</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[options_container]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="new-variations-attribute-set-id" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">new-variations-attribute-set-id</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="links[related]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${related_product_post_param_value}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">links[related]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="links[upsell]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${related_product_post_param_value}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">links[upsell]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="links[crosssell]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${related_product_post_param_value}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">links[crosssell]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+          </collectionProp>
+        </elementProp>
+        <stringProp name="HTTPSampler.domain"></stringProp>
+        <stringProp name="HTTPSampler.port"></stringProp>
+        <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+        <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        <stringProp name="HTTPSampler.protocol"></stringProp>
+        <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+        <stringProp name="HTTPSampler.path">${base_path}${admin_path}/catalog/product/save/id/${simple_product_id}/back/edit/active_tab/product-details/</stringProp>
+        <stringProp name="HTTPSampler.method">POST</stringProp>
+        <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+        <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+        <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+        <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+        <boolProp name="HTTPSampler.monitor">false</boolProp>
+        <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+      </HTTPSamplerProxy>
+      <hashTree>
+        <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+          <collectionProp name="Asserion.test_strings">
+            <stringProp name="-583471546">You saved the product</stringProp>
+          </collectionProp>
+          <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+          <boolProp name="Assertion.assume_success">false</boolProp>
+          <intProp name="Assertion.test_type">2</intProp>
+        </ResponseAssertion>
+        <hashTree/>
+      </hashTree>
+      <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Admin Edit Product - Edit Configurable Product" enabled="true">
+        <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+          <collectionProp name="Arguments.arguments"/>
+        </elementProp>
+        <stringProp name="HTTPSampler.domain"></stringProp>
+        <stringProp name="HTTPSampler.port"></stringProp>
+        <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+        <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        <stringProp name="HTTPSampler.protocol"></stringProp>
+        <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+        <stringProp name="HTTPSampler.path">${base_path}${admin_path}/catalog/product/edit/id/${configurable_product_id}/</stringProp>
+        <stringProp name="HTTPSampler.method">GET</stringProp>
+        <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+        <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+        <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+        <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+        <boolProp name="HTTPSampler.monitor">false</boolProp>
+        <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+      </HTTPSamplerProxy>
+      <hashTree>
+        <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+          <collectionProp name="Asserion.test_strings">
+            <stringProp name="-2052109359">Product Details</stringProp>
+          </collectionProp>
+          <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+          <boolProp name="Assertion.assume_success">false</boolProp>
+          <intProp name="Assertion.test_type">2</intProp>
+        </ResponseAssertion>
+        <hashTree/>
+        <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor: Extract category" enabled="true">
+          <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+          <stringProp name="RegexExtractor.refname">configurable_product_category_id</stringProp>
+          <stringProp name="RegexExtractor.regex">&lt;option value=&quot;([^&apos;&quot;]+)&quot; selected=&quot;selected&quot;&gt;Category</stringProp>
+          <stringProp name="RegexExtractor.template">$1$</stringProp>
+          <stringProp name="RegexExtractor.default"></stringProp>
+          <stringProp name="RegexExtractor.match_number">1</stringProp>
+          <stringProp name="Scope.variable">simple_products</stringProp>
+        </RegexExtractor>
+        <hashTree/>
+        <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor: Extract name" enabled="true">
+          <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+          <stringProp name="RegexExtractor.refname">configurable_product_name</stringProp>
+          <stringProp name="RegexExtractor.regex">data-ui-id=&quot;product-tabs-attributes-tab-fieldset-element-text-product-name&quot; \s*value=&quot;([^&apos;&quot;]+)&quot;</stringProp>
+          <stringProp name="RegexExtractor.template">$1$</stringProp>
+          <stringProp name="RegexExtractor.default"></stringProp>
+          <stringProp name="RegexExtractor.match_number">1</stringProp>
+          <stringProp name="Scope.variable">simple_products</stringProp>
+        </RegexExtractor>
+        <hashTree/>
+        <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor: Extract sku" enabled="true">
+          <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+          <stringProp name="RegexExtractor.refname">configurable_product_sku</stringProp>
+          <stringProp name="RegexExtractor.regex">data-ui-id=&quot;product-tabs-attributes-tab-fieldset-element-text-product-sku&quot; \s*value=&quot;([^&quot;&quot;]+)&quot;</stringProp>
+          <stringProp name="RegexExtractor.template">$1$</stringProp>
+          <stringProp name="RegexExtractor.default"></stringProp>
+          <stringProp name="RegexExtractor.match_number">1</stringProp>
+          <stringProp name="Scope.variable">simple_products</stringProp>
+        </RegexExtractor>
+        <hashTree/>
+        <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor: Extract associated_product_ids" enabled="true">
+          <stringProp name="RegexExtractor.useHeaders">as_document</stringProp>
+          <stringProp name="RegexExtractor.refname">associated_product_ids</stringProp>
+          <stringProp name="RegexExtractor.regex">&quot;productId&quot;:&quot;([\d]+)&quot;</stringProp>
+          <stringProp name="RegexExtractor.template">$1$</stringProp>
+          <stringProp name="RegexExtractor.default"></stringProp>
+          <stringProp name="RegexExtractor.match_number">-1</stringProp>
+          <stringProp name="Scope.variable">simple_products</stringProp>
+        </RegexExtractor>
+        <hashTree/>
+        <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor: Extract configurable_attribute_id" enabled="true">
+          <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+          <stringProp name="RegexExtractor.refname">configurable_attribute_id</stringProp>
+          <stringProp name="RegexExtractor.regex">&quot;configurable variations&quot;,&quot;id&quot;:&quot;([\d]+)&quot;,&quot;position&quot;</stringProp>
+          <stringProp name="RegexExtractor.template">$1$</stringProp>
+          <stringProp name="RegexExtractor.default"></stringProp>
+          <stringProp name="RegexExtractor.match_number">1</stringProp>
+          <stringProp name="Scope.variable">simple_products</stringProp>
+        </RegexExtractor>
+        <hashTree/>
+        <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor: Extract configurable_attribute_index" enabled="true">
+          <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+          <stringProp name="RegexExtractor.refname">configurable_attribute_index</stringProp>
+          <stringProp name="RegexExtractor.regex">&lt;option value=&quot;([\d]+)&quot;&gt;option</stringProp>
+          <stringProp name="RegexExtractor.template">$1$</stringProp>
+          <stringProp name="RegexExtractor.default"></stringProp>
+          <stringProp name="RegexExtractor.match_number">-1</stringProp>
+          <stringProp name="Scope.variable">simple_products</stringProp>
+        </RegexExtractor>
+        <hashTree/>
+      </hashTree>
+      <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Admin Edit Product - Edit Configurable Product Validate" enabled="true">
+        <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="ajax" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">true</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">ajax</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="isAjax" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">true</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">isAjax</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="form_key" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${admin_form_key}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">form_key</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[name]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_name}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[name]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[sku]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_sku}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[sku]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[price]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${price_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[price]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[tax_class_id]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">2</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[tax_class_id]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[quantity_and_stock_status][is_in_stock]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[quantity_and_stock_status][is_in_stock]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[weight]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">3</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[weight]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[category_ids][]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_category_id}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[category_ids][]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[category_ids][]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${category_additional}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[category_ids][]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[description]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">&lt;p&gt;Configurable product description ${configurable_product_id} Edited&lt;/p&gt;</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[description]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[status]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[status]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[meta_title]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_name} Meta Title Edited</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[meta_title]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[meta_keyword]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_name} Meta Keyword Edited</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[meta_keyword]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[meta_description]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_name} Meta Description Edited</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[meta_description]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[website_ids][]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[website_ids][]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[special_price]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${special_price_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[special_price]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[special_from_date]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[special_from_date]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[special_to_date]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[special_to_date]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[cost]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[cost]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_manage_stock]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_manage_stock]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][min_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][min_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_min_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_min_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][min_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][min_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_min_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_min_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_max_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_max_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][is_qty_decimal]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][is_qty_decimal]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][is_decimal_divided]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][is_decimal_divided]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][backorders]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][backorders]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_backorders]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_backorders]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][notify_stock_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][notify_stock_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_notify_stock_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_notify_stock_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][enable_qty_increments]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][enable_qty_increments]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][qty_increments]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][qty_increments]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_qty_increments]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_qty_increments]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][is_in_stock]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][is_in_stock]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_design]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_design]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_design_from]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_design_from]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_design_to]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_design_to]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_layout_update]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_layout_update]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[page_layout]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[page_layout]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[options_container]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">container2</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[options_container]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="new-variations-attribute-set-id" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">4</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">new-variations-attribute-set-id</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="affect_configurable_product_attributes" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">affect_configurable_product_attributes</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="attributes[]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_attribute_id}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">attributes[]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[configurable_attributes_data][${configurable_attribute_id}][code]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">configurable_variation</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[configurable_attributes_data][${configurable_attribute_id}][code]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[configurable_attributes_data][${configurable_attribute_id}][attribute_id]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_attribute_id}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[configurable_attributes_data][${configurable_attribute_id}][attribute_id]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[configurable_attributes_data][${configurable_attribute_id}][position]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[configurable_attributes_data][${configurable_attribute_id}][position]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[configurable_attributes_data][${configurable_attribute_id}][label]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">configurablevariations</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[configurable_attributes_data][${configurable_attribute_id}][label]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="associated_product_ids[]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${associated_product_ids_1}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">associated_product_ids[]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="associated_product_ids[]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${associated_product_ids_2}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">associated_product_ids[]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="associated_product_ids[]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${associated_product_ids_3}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">associated_product_ids[]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[url_key]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_name}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[url_key]</stringProp>
+            </elementProp>
+            <elementProp name="product[use_config_gift_message_available]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[use_config_gift_message_available]</stringProp>
+            </elementProp>
+            <elementProp name="product[use_config_gift_wrapping_available]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[use_config_gift_wrapping_available]</stringProp>
+            </elementProp>
+            <elementProp name="product[visibility]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">4</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[visibility]</stringProp>
+            </elementProp>
+            <elementProp name="links[related]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${related_product_post_param_value}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">links[related]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="links[upsell]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${related_product_post_param_value}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">links[upsell]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="links[crosssell]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${related_product_post_param_value}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">links[crosssell]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+          </collectionProp>
+        </elementProp>
+        <stringProp name="HTTPSampler.domain"></stringProp>
+        <stringProp name="HTTPSampler.port"></stringProp>
+        <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+        <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        <stringProp name="HTTPSampler.protocol"></stringProp>
+        <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+        <stringProp name="HTTPSampler.path">${base_path}${admin_path}/catalog/product/validate/id/${configurable_product_id}/?isAjax=true</stringProp>
+        <stringProp name="HTTPSampler.method">POST</stringProp>
+        <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+        <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+        <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+        <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+        <boolProp name="HTTPSampler.monitor">false</boolProp>
+        <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+      </HTTPSamplerProxy>
+      <hashTree>
+        <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+          <collectionProp name="Asserion.test_strings">
+            <stringProp name="1853918323">{&quot;error&quot;:false}</stringProp>
+          </collectionProp>
+          <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+          <boolProp name="Assertion.assume_success">false</boolProp>
+          <intProp name="Assertion.test_type">2</intProp>
+        </ResponseAssertion>
+        <hashTree/>
+      </hashTree>
+      <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Admin Edit Product - Edit Configurable Product Save" enabled="true">
+        <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="ajax" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">true</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">ajax</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="isAjax" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">true</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">isAjax</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="form_key" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${admin_form_key}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">form_key</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[name]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_name}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[name]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[sku]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_sku}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[sku]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[price]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${price_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[price]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[tax_class_id]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">2</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[tax_class_id]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[quantity_and_stock_status][is_in_stock]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[quantity_and_stock_status][is_in_stock]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[weight]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">3</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[weight]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[category_ids][]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_category_id}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[category_ids][]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[category_ids][]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${category_additional}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[category_ids][]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[description]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">&lt;p&gt;Configurable product description ${configurable_product_id} Edited&lt;/p&gt;</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[description]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[status]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[status]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[meta_title]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_name} Meta Title Edited</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[meta_title]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[meta_keyword]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_name} Meta Keyword Edited</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[meta_keyword]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[meta_description]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_name} Meta Description Edited</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[meta_description]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[website_ids][]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[website_ids][]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[special_price]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${special_price_new}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[special_price]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[special_from_date]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[special_from_date]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[special_to_date]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[special_to_date]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[cost]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[cost]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_manage_stock]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_manage_stock]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][min_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][min_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_min_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_min_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][min_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][min_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_min_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_min_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_max_sale_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_max_sale_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][is_qty_decimal]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][is_qty_decimal]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][is_decimal_divided]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][is_decimal_divided]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][backorders]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][backorders]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_backorders]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_backorders]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][notify_stock_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][notify_stock_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_notify_stock_qty]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_notify_stock_qty]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][enable_qty_increments]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][enable_qty_increments]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][qty_increments]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][qty_increments]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][use_config_qty_increments]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][use_config_qty_increments]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[stock_data][is_in_stock]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[stock_data][is_in_stock]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_design]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_design]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_design_from]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_design_from]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_design_to]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_design_to]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[custom_layout_update]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[custom_layout_update]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[page_layout]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[page_layout]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[options_container]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">container2</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[options_container]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="new-variations-attribute-set-id" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">4</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">new-variations-attribute-set-id</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="affect_configurable_product_attributes" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">affect_configurable_product_attributes</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="attributes[]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_attribute_id}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">attributes[]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[configurable_attributes_data][${configurable_attribute_id}][code]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">configurable_variation</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[configurable_attributes_data][${configurable_attribute_id}][code]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[configurable_attributes_data][${configurable_attribute_id}][attribute_id]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_attribute_id}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[configurable_attributes_data][${configurable_attribute_id}][attribute_id]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[configurable_attributes_data][${configurable_attribute_id}][position]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[configurable_attributes_data][${configurable_attribute_id}][position]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[configurable_attributes_data][${configurable_attribute_id}][label]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">configurablevariations</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[configurable_attributes_data][${configurable_attribute_id}][label]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="associated_product_ids[]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${associated_product_ids_1}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">associated_product_ids[]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="associated_product_ids[]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${associated_product_ids_2}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">associated_product_ids[]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="associated_product_ids[]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${associated_product_ids_3}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">associated_product_ids[]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="product[url_key]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${configurable_product_name}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[url_key]</stringProp>
+            </elementProp>
+            <elementProp name="product[use_config_gift_message_available]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[use_config_gift_message_available]</stringProp>
+            </elementProp>
+            <elementProp name="product[use_config_gift_wrapping_available]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[use_config_gift_wrapping_available]</stringProp>
+            </elementProp>
+            <elementProp name="product[visibility]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">4</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">product[visibility]</stringProp>
+            </elementProp>
+            <elementProp name="links[related]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${related_product_post_param_value}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">links[related]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="links[upsell]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${related_product_post_param_value}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">links[upsell]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+            <elementProp name="links[crosssell]" elementType="HTTPArgument">
+              <boolProp name="HTTPArgument.always_encode">false</boolProp>
+              <stringProp name="Argument.value">${related_product_post_param_value}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+              <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              <stringProp name="Argument.name">links[crosssell]</stringProp>
+              <stringProp name="Argument.desc">false</stringProp>
+            </elementProp>
+          </collectionProp>
+        </elementProp>
+        <stringProp name="HTTPSampler.domain"></stringProp>
+        <stringProp name="HTTPSampler.port"></stringProp>
+        <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+        <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        <stringProp name="HTTPSampler.protocol"></stringProp>
+        <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+        <stringProp name="HTTPSampler.path">${base_path}${admin_path}/catalog/product/save/id/${configurable_product_id}/back/edit/active_tab/product-details/</stringProp>
+        <stringProp name="HTTPSampler.method">POST</stringProp>
+        <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+        <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+        <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+        <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+        <boolProp name="HTTPSampler.monitor">false</boolProp>
+        <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+      </HTTPSamplerProxy>
+      <hashTree>
+        <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+          <collectionProp name="Asserion.test_strings">
+            <stringProp name="-583471546">You saved the product</stringProp>
+          </collectionProp>
+          <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+          <boolProp name="Assertion.assume_success">false</boolProp>
+          <intProp name="Assertion.test_type">2</intProp>
+          <stringProp name="TestPlan.comments"> if have trouble see messages-message-error </stringProp>
+        </ResponseAssertion>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

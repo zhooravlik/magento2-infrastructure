@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Apache Ant's build file for core deployment builds
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="Core Deployment Builds" basedir="../../" default="_verify_publish_parameters">
+    <import file="../core_dev/unit/build.xml"/>
+
+    <property name="composer_additional_options" value="--no-plugins"/>
+    <property name="target_packages_dir" value="${basedir}/_packages"/>
+    <property name="target_project_dir" value="${basedir}/project"/>
+    <property name="local_public_repo_name" value="public"/>
+    <property name="packages_user" value="deploy"/>
+    <property name="packages_keyfile" value="/opt/bamboo/.ssh/packages.magento.com.pem"/>
+    <property name="packages_user_home" value="/home/${packages_user}"/>
+    <property name="packages_satishome" value="${packages_user_home}/satis"/>
+
+    <target name="publication_sample_data" depends="_verify_publish_parameters, _server_info" description="Sample Data package population as a package">
+        <fail message="Bamboo variable 'bamboo_sample_data_repository' must be defined.">
+            <condition><equals arg1="${env.bamboo_sample_data_repository}" arg2="" trim="true"/></condition>
+        </fail>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/build/publication/sample_data.php --
+                --ce-repo=${env.bamboo_sample_data_ce_repository}
+                --target-packages-dir=${target_packages_dir}
+                "/>
+        </exec>
+        <antcall target="_update_packages_server" />
+    </target>
+
+    <target name="publication_migration_tool" depends="_verify_publish_parameters, _server_info" description="Migration Tool package population as a package">
+        <fail message="Bamboo variable 'bamboo_migration_tool_repository' must be defined.">
+            <condition><equals arg1="${env.bamboo_migration_tool_repository}" arg2="" trim="true"/></condition>
+        </fail>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/build/migration-tool/publication.php --
+                --repo=${env.bamboo_migration_tool_repository}
+                --target-packages-dir=${target_packages_dir}
+                "/>
+        </exec>
+        <antcall target="_update_packages_server" />
+    </target>
+
+    <target name="publication_migration_tool_github" description="Publication of Migration Tool CE to Github">
+        <fail message="Bamboo variable 'bamboo_migration_tool_repository' must be defined.">
+            <condition><equals arg1="${env.bamboo_migration_tool_repository}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Bamboo variable 'target_git_repository' must be defined.">
+            <condition><equals arg1="${env.TARGET_GIT_REPOSITORY}" arg2="" trim="true"/></condition>
+        </fail>
+
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/build/migration-tool/publication_to_git.php --
+                --edition=${env.MIGRATION_TOOL_EDITION}
+                --repo=${env.bamboo_migration_tool_repository}
+                --target-repo=${env.TARGET_GIT_REPOSITORY}
+                "/>
+        </exec>
+
+        <!-- Push MT CE Edition 'master' branch -->
+        <exec dir="${basedir}/target_repo" executable="git" failonerror="true">
+            <arg line="push origin master"/>
+        </exec>
+    </target>
+
+    <target name="publication_sample_modules" depends="_verify_publish_parameters, _server_info" description="Publish Sample Modules package">
+        <fail message="Bamboo variable 'bamboo_sample_modules_repository' must be defined.">
+            <condition><equals arg1="${env.bamboo_sample_modules_repository}" arg2="" trim="true"/></condition>
+        </fail>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/build/publication/sample_modules.php --
+                --repo=${env.bamboo_sample_modules_repository}
+                --target-packages-dir=${target_packages_dir}
+                "/>
+        </exec>
+        <antcall target="_update_packages_server" />
+    </target>
+
+    <target name="prepare_public_repo" depends="_server_info, _composer_install" description="Prepare public repository by updating it from internal one">
+        <fail message="Bamboo variable 'source_dir' must be defined.">
+            <condition><equals arg1="${env.source_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Bamboo variable 'target_public_repository' must be defined.">
+            <condition><equals arg1="${env.bamboo_target_public_repository}" arg2="" trim="true"/></condition>
+        </fail>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/build/publication/prepare_public_repo.php --
+                --source-dir=${env.source_dir}
+                --public-repo=${env.bamboo_target_public_repository}
+                --local-public-repo-name=${local_public_repo_name}
+                --branches=master,develop
+                "/>
+        </exec>
+    </target>
+
+    <target name="publication_ce" depends="_verify_publish_parameters, _server_info, _composer_install" description="Publication of packages of Community Edition">
+        <!-- Validate ce publication specific parameters -->
+        <fail message="Bamboo variable 'source_dir' must be defined.">
+            <condition><equals arg1="${env.source_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Bamboo variable 'target_product_repository' must be defined.">
+            <condition><equals arg1="${env.bamboo_target_project_repository}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Bamboo variable 'updater_application_repository' must be defined.">
+            <condition><equals arg1="${env.bamboo_updater_application_repository}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Property 'target_project_dir' must be defined.">
+            <condition><equals arg1="${target_project_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/build/publication/prepare_packages.php --
+                --source-dir=${env.source_dir}
+                --target-packages-dir=${target_packages_dir}
+                --project-repo=${env.bamboo_target_project_repository}
+                --target-project-dir=${target_project_dir}
+                "/>
+        </exec>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/build/publication/prepare_updater_app.php --
+                --source-dir=${env.source_dir}
+                --updater-repo=${env.bamboo_updater_application_repository}
+                --project-repo=${env.bamboo_target_project_repository}
+                --target-project-dir=${target_project_dir}
+                "/>
+        </exec>
+        <antcall target="_update_packages_server" />
+        <!-- Push CE product update -->
+        <exec dir="${target_project_dir}" executable="git" failonerror="true">
+            <arg line="push origin master"/>
+        </exec>
+        <!-- Add version tag -->
+        <antcall target="_publish_version_tag" inheritAll="true">
+            <param name="repository_dir" value="${target_project_dir}"/>
+            <param name="repository_alias" value="origin"/>
+        </antcall>
+    </target>
+
+    <target name="publication_mainline_ce" description="Publication of mainline Community Edition">
+        <!-- Validate ce mainline publication specific parameters -->
+        <fail message="Bamboo variable 'source_dir' must be defined.">
+            <condition><equals arg1="${env.source_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <!-- Prepare public repository -->
+        <antcall target="prepare_public_repo" inheritAll="true"/>
+        <!-- Push CE update to 'master' branch -->
+        <exec dir="${env.source_dir}" executable="git" failonerror="true">
+            <arg line="push ${local_public_repo_name} ${local_public_repo_name}-master:master"/>
+        </exec>
+        <!-- Push CE update to 'develop' branch -->
+        <exec dir="${env.source_dir}" executable="git" failonerror="true">
+            <arg line="push ${local_public_repo_name} ${local_public_repo_name}-develop:develop"/>
+        </exec>
+        <!-- Add version tag -->
+        <antcall target="_publish_version_tag" inheritAll="true">
+            <param name="repository_dir" value="${env.source_dir}"/>
+            <param name="repository_alias" value="${local_public_repo_name}"/>
+        </antcall>
+    </target>
+
+    <target name="publication_ee" depends="_verify_publish_parameters, _server_info, _composer_install" description="Publication of packages of Enterprise Edition">
+        <!-- Validate ee publication specific parameters -->
+        <fail message="Bamboo variable 'source_dir' must be defined.">
+            <condition><equals arg1="${env.source_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Property 'target_project_dir' must be defined.">
+            <condition><equals arg1="${target_project_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <exec executable="php" failonerror="true">
+            <arg line="-f ${basedir}/build/publication/prepare_packages.php --
+                --source-dir=${env.source_dir}
+                --target-packages-repo=${env.bamboo_target_packages_host}
+                --target-packages-dir=${target_packages_dir}
+                --target-project-dir=${target_project_dir}
+                --edition=ee
+                "/>
+        </exec>
+        <antcall target="_update_packages_server" />
+    </target>
+
+    <target name="_update_packages_server" description="Copy new archives to packages server">
+        <!-- Copy new archive files to packages server -->
+        <exec executable="rsync" dir="." failonerror="true">
+            <arg value="-r"/>
+            <arg value="-v"/>
+            <arg value="--rsh=ssh -i ${packages_keyfile}"/>
+            <arg value="${target_packages_dir}"/>
+            <arg value="${packages_user}@${env.bamboo_target_packages_host}:${env.bamboo_packages_home}"/>
+        </exec>
+        <!-- Re-build Satis index -->
+        <sshexec host="${env.bamboo_target_packages_host}"
+                 username="${packages_user}"
+                 keyfile="${packages_keyfile}"
+                 trust="yes"
+                 command="php ${packages_satishome}/bin/satis build ${packages_satishome}/${env.bamboo_satis_json_filename} ${env.bamboo_packages_home}" />
+        <!-- Fix dist url in packages include json file and sync with redundant packages server -->
+        <sshexec host="${env.bamboo_target_packages_host}"
+                 username="${packages_user}"
+                 keyfile="${packages_keyfile}"
+                 trust="yes"
+                 command="cd ${packages_user_home}; ./satis-fix.sh ${env.bamboo_packages_home}; ./rsync-ha.sh" />
+    </target>
+
+    <target name="_verify_publish_parameters" description="Verify publication parameters">
+        <!-- Valid all parameters that are required to communicate with the packages server -->
+        <fail message="Bamboo variable 'target_packages_host' must be defined.">
+            <condition><equals arg1="${env.bamboo_target_packages_host}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Property 'target_packages_dir' must be defined.">
+            <condition><equals arg1="${target_packages_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Property 'packages_home' must be defined.">
+            <condition><equals arg1="${env.bamboo_packages_home}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Property 'satis_json_filename' must be defined.">
+            <condition><equals arg1="${env.bamboo_satis_json_filename}" arg2="" trim="true"/></condition>
+        </fail>
+        <mkdir dir="${target_packages_dir}"/>
+    </target>
+
+    <target name="_publish_version_tag" description="Publish version tag for the repository">
+        <fail message="Variable 'repository_dir' must be defined">
+            <condition><equals arg1="${repository_dir}" arg2="" trim="true"/></condition>
+        </fail>
+        <fail message="Variable 'repository_alias' must be defined">
+            <condition><equals arg1="${repository_alias}" arg2="" trim="true"/></condition>
+        </fail>
+        <loadfile srcFile="${env.source_dir}/CHANGELOG.md" property="version" failonerror="true">
+            <filterchain>
+                <headfilter lines="1"/>
+                <striplinebreaks/>
+            </filterchain>
+        </loadfile>
+        <echo message="Add version tag '${version}'"/>
+        <exec dir="${repository_dir}" executable="git" failonerror="true">
+            <arg line="tag ${version}"/>
+        </exec>
+        <exec dir="${repository_dir}" executable="git" failonerror="true">
+            <arg line="push ${repository_alias} ${version}"/>
+        </exec>
+    </target>
+
+</project>

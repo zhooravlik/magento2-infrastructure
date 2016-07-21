@@ -1,0 +1,1 @@
+http://{host}/simple-product-109.html

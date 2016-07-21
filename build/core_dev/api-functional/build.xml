@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Ant build configuration for Web API functional tests
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="Core Development Web API Functional Tests" basedir="../../../../" default="run">
+    <import file="../util.xml"/>
+    <property name="product_root_dir" location="${env.deploy_directory}/${env.build.key}/build-${env.build.number}"/>
+    <property name="magento_instance_base_url" value="${env.http_host}${env.build.key}/build-${env.build.number}"/>
+
+    <target name="run" depends="_server_info" description="Test Magento Web API.">
+        <antcall target="_deploy_magento"/>
+        <antcall target="_drop_database" />
+        <antcall target="_create_database"/>
+        <antcall target="_run_tests"/>
+    </target>
+
+    <target name="_deploy_magento"
+            description="Deploy Magento instance (installation is done later during tests execution in bootstrap).">
+        <copy todir="${product_root_dir}" failonerror="true">
+            <fileset dir="${basedir}"/>
+        </copy>
+        <!--Make all necessary directories writable-->
+        <antcall target="_installation_requirements"/>
+    </target>
+
+    <target name="_run_tests" depends="_configure_tests,_composer_install" description="Run Web API functional tests.">
+        <exec dir="${product_root_dir}/dev/tests/api-functional" executable="phpunit" failonerror="true">
+            <arg line="--log-junit ${basedir}/test-cases-report.xml"/>
+        </exec>
+    </target>
+
+    <target name="_configure_tests">
+        <!--Prepare config.php-->
+        <condition property="db_vendor_name" value="mysql">
+            <not>
+                <isset property="db_vendor_name"/>
+            </not>
+        </condition>
+        <condition property="db_table_prefix" value="">
+            <not>
+                <isset property="db_table_prefix"/>
+            </not>
+        </condition>
+        <condition property="app_mode" value="developer">
+            <not>
+                <isset property="app_mode"/>
+            </not>
+        </condition>
+        <copy file="${basedir}/dev/build/core_dev/api-functional/install-config-${db_vendor_name}.php"
+              todir="${product_root_dir}/dev/tests/api-functional/config" overwrite="true"/>
+
+        <!--Prepare configuration for magento installation-->
+        <property name="db_config_file"
+                  value="${product_root_dir}/dev/tests/api-functional/config/install-config-${db_vendor_name}.php"/>
+        <antcall target="_database_credential_substitution"/>
+
+        <replace file="${db_config_file}">
+            <replacefilter token="{{db_table_prefix}}" value="${db_table_prefix}"/>
+            <replacefilter token="{{db-model}}" value="${env.db_model}"/>
+            <replacefilter token="{{db-host}}" value="${env.db_host}"/>
+            <replacefilter token="{{db-name}}" value="${env.db_name}"/>
+            <replacefilter token="{{db-user}}" value="${env.db_user}"/>
+            <replacefilter token="{{db-password}}" value="${env.db_password}"/>
+            <replacefilter token="{{url}}" value="${magento_instance_base_url}"/>
+        </replace>
+
+        <!--Prepare phpunit.xml-->
+        <copy file="${basedir}/${env.build_customization_dir}/phpunit.xml" failonerror="true" overwrite="true"
+              tofile="${product_root_dir}/dev/tests/api-functional/phpunit.xml"/>
+        <condition property="testsuite" value="${env.testsuite}" else="testsuite">
+            <isset property="env.testsuite"/>
+        </condition>
+        <replace file="${product_root_dir}/dev/tests/api-functional/phpunit.xml">
+            <!--URL rewrites are disabled on agents thus 'index.php' should be used as entry point-->
+            <replacefilter token="{{base_url}}" value="${magento_instance_base_url}/index.php"/>
+            <replacefilter token="{{web_api_adapter}}" value="${env.web_api_adapter}"/>
+            <replacefilter token="{{app_mode}}" value="${app_mode}"/>
+            <replacefilter token="{{testsuite}}" value="${testsuite}"/>
+        </replace>
+    </target>
+</project>

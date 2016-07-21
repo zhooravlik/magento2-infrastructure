@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Apache Ant's build file for core development performance benchmarking
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<project name="Core Development KPI End-To-End Benchmarking" basedir="." xmlns:ac="antlib:net.sf.antcontrib">
+    <property environment="env"/>
+
+    <target name="deploy" description="Install Magento on webnode">
+        <antcall target="cleanup"/>
+        <antcall target="upload"/>
+        <antcall target="install-magento"/>
+    </target>
+
+    <target name="cleanup" description="Cleanup environment">
+        <antcall target="drop-database"/>
+        <antcall target="clear-magento-dir"/>
+        <antcall target="clear-caches"/>
+    </target>
+
+    <target name="clear-magento-dir" depends="_webnode-credentials-check">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="find ${env.magento_dir} -maxdepth 1 -mindepth 1 ! -name 'vendor' -exec rm -rf {} \;"/>
+    </target>
+
+    <target name="clear-caches" description="Clear Apache and OPCache caches" depends="_webnode-credentials-check">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 usepty="true"
+                 command="sudo service httpd restart; php -r 'opcache_reset();' rm -rf ${env.magento_dir}/var/cache"/>
+    </target>
+
+    <target name="upload" description="Upload source code to the webnode" depends="_webnode-credentials-check">
+        <exec executable="rsync" failonerror="true">
+            <arg value="-rz"/>
+            <arg value="--delete"/>
+            <arg value="--exclude=/.git"/>
+            <arg value="--exclude=/vendor"/>
+            <arg value="${user.dir}/"/>
+            <arg value="${env.webnode_login}@${env.webnode_initial}:${env.magento_dir}"/>
+        </exec>
+    </target>
+
+    <target name="install-magento" description="Install Magento Application on defined fixture configuration">
+        <antcall target="install-clean-magento"/>
+        <antcall target="update-configuration"/>
+        <antcall target="deploy-static-files"/>
+        <antcall target="generate-profile"/>
+        <antcall target="run-singletenant-compiler"/>
+        <antcall target="set-production-mode"/>
+        <antcall target="update-varnish-config"/>
+    </target>
+
+    <target name="install-clean-magento" description="Install Magento application on remote server"
+            depends="_webnode-credentials-check,cleanup-magento-config,_webnode-setup-check,clear-magento-var">
+        <antcall target="create-database"/>
+        <antcall target="composer-install"/>
+
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="php -f ${env.magento_dir}/bin/magento setup:install --language='en_US' --timezone='America/Los_Angeles' --currency='USD' --db-host='${env.mysql_host}' --db-name='${env.mysql_database}' --db-user='${env.mysql_user}' --db-password='${env.mysql_password}' --use-secure='0' --use-secure-admin='0' --use-rewrites='1' --admin-lastname='Admin' --admin-firstname='Admin' --admin-email='admin@example.com' --admin-use-security-key='0' --base-url='http://${env.base_url}' --base-url-secure='https://${env.secure_base_url}' --backend-frontname='backend' --admin-user='admin' --admin-password='123123q' --http-cache-hosts='127.0.0.1:8080' 2>&amp;1"/>
+    </target>
+
+    <target name="cleanup-magento-config">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="cd ${env.magento_dir} &amp;&amp; rm -f app/etc/config.php app/etc/env.php"/>
+    </target>
+
+    <target name="deploy-static-files" description="Deploying static assets for production mode"
+            depends="_webnode-credentials-check">
+        <antcall target="clear-magento-var"/>
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="php -f ${env.magento_dir}/bin/magento setup:static-content:deploy;"/>
+    </target>
+
+    <target name="update-configuration" depends="_webnode-credentials-check,_magento-config-params-check">
+        <antcall target="clear-magento-var"/>
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="
+                    cd ${env.magento_dir} &amp;&amp;
+                    cp dev/build/core_dev/performance/kpi/end-to-end/profile/configuration-template.xml dev/build/core_dev/performance/kpi/end-to-end/profile/configuration.xml &amp;&amp;
+                    sed -i &quot;s#%merge_css%#${env.merge_css}#&quot; dev/build/core_dev/performance/kpi/end-to-end/profile/configuration.xml &amp;&amp;
+                    sed -i &quot;s#%minify_css%#${env.minify_css}#&quot; dev/build/core_dev/performance/kpi/end-to-end/profile/configuration.xml &amp;&amp;
+                    sed -i &quot;s#%merge_js%#${env.merge_js}#&quot; dev/build/core_dev/performance/kpi/end-to-end/profile/configuration.xml &amp;&amp;
+                    sed -i &quot;s#%minify_js%#${env.minify_js}#&quot; dev/build/core_dev/performance/kpi/end-to-end/profile/configuration.xml &amp;&amp;
+                    sed -i &quot;s#%js_bundling%#${env.js_bundling}#&quot; dev/build/core_dev/performance/kpi/end-to-end/profile/configuration.xml &amp;&amp;
+                    sed -i &quot;s#%async_indexing%#${env.async_indexing}#&quot; dev/build/core_dev/performance/kpi/end-to-end/profile/configuration.xml &amp;&amp;
+                    sed -i &quot;s#%async_sending%#${env.async_sending}#&quot; dev/build/core_dev/performance/kpi/end-to-end/profile/configuration.xml &amp;&amp;
+                    php -f bin/magento setup:performance:generate-fixtures ${env.magento_dir}/dev/build/core_dev/performance/kpi/end-to-end/profile/configuration.xml
+                    "/>
+    </target>
+
+    <target name="clear-magento-var" depends="_webnode-credentials-check">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="cd ${env.magento_dir}; rm -rf var/*"/>
+    </target>
+
+    <target name="generate-profile" depends="_webnode-credentials-check,clear-magento-var">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="cd ${env.magento_dir}/setup/src/Magento/Setup/Fixtures/; cp tax_rates.csv temp.csv; head -5 temp.csv > tax_rates.csv;"/>
+
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="php -f ${env.magento_dir}/bin/magento setup:performance:generate-fixtures ${env.magento_dir}/dev/build/core_dev/performance/client-side/performance-toolkit-profile/small.xml"/>
+    </target>
+
+    <target name="drop-database" depends="_db-credentials-check,_webnode-credentials-check"
+            description="Drop specified MySQL database">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="mysql -u${env.mysql_user} -p${env.mysql_password} -h${env.mysql_host} -e 'DROP DATABASE IF EXISTS ${env.mysql_database};'"/>
+    </target>
+
+    <target name="create-database" depends="_db-credentials-check,_webnode-credentials-check,drop-database"
+            description="Create specified MySQL database">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="mysql -u${env.mysql_user} -p${env.mysql_password} -e 'CREATE DATABASE ${env.mysql_database};'"/>
+    </target>
+
+    <target name="composer-install" description="Run composer install" depends="_webnode-credentials-check">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="cd ${env.magento_dir}; composer install --no-interaction;"/>
+    </target>
+
+    <target name="run-singletenant-compiler" depends="_webnode-credentials-check,clear-magento-var">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="cd ${env.magento_dir}; php -f bin/magento setup:di:compile"/>
+        <antcall target="clear-caches"/>
+    </target>
+
+    <target name="set-production-mode" depends="_webnode-credentials-check">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 command="
+                 cd ${env.magento_dir} &amp;&amp;
+                 grep -e '^SetEnv MAGE_MODE' .htaccess >/dev/null &amp;&amp;
+                     sed -i 's/^SetEnv\s*MAGE_MODE.*/SetEnv MAGE_MODE production/g' .htaccess ||
+                  echo -e '\nSetEnv MAGE_MODE production' >> .htaccess" />
+    </target>
+
+    <target name="update-varnish-config">
+        <sshexec host="${env.webnode_initial}"
+                 username="${env.webnode_login}"
+                 password="${env.webnode_password}"
+                 trust="yes"
+                 usepty="true"
+                 command="cd ${env.magento_dir}/dev/build/core_dev/performance/client-side &amp;&amp; sh varnish-apply-config.sh"/>
+    </target>
+
+    <target name="_db-credentials-check">
+        <fail unless="env.mysql_host" message="Variable 'mysql_host' must be defined"/>
+        <fail unless="env.mysql_user" message="Variable 'mysql_user' must be defined"/>
+        <fail unless="env.mysql_password" message="Variable 'mysql_password' must be defined"/>
+        <fail unless="env.mysql_database" message="Variable 'mysql_database' must be defined"/>
+    </target>
+
+    <target name="_webnode-credentials-check">
+        <fail unless="env.webnode_initial" message="Variable 'webnode_initial' must be defined"/>
+        <fail unless="env.webnode_login" message="Variable 'webnode_login' must be defined"/>
+        <fail unless="env.webnode_password" message="Variable 'webnode_password' must be defined"/>
+        <fail unless="env.magento_dir" message="Variable 'magento_dir' must be defined"/>
+    </target>
+
+    <target name="_magento-config-params-check">
+        <fail unless="env.merge_css" message="Variable 'merge_css' must be defined"/>
+        <fail unless="env.minify_css" message="Variable 'minify_css' must be defined"/>
+        <fail unless="env.merge_js" message="Variable 'merge_js' must be defined"/>
+        <fail unless="env.minify_js" message="Variable 'minify_js' must be defined"/>
+        <fail unless="env.js_bundling" message="Variable 'js_bundling' must be defined"/>
+    </target>
+
+    <target name="_webnode-setup-check">
+        <fail unless="env.base_url" message="Variable 'base_url' must be defined"/>
+        <fail unless="env.secure_base_url" message="Variable 'secure_base_url' must be defined"/>
+    </target>
+</project>

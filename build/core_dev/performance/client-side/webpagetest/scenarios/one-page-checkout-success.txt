@@ -1,0 +1,15 @@
+logData 0
+navigate http://{host}/simple-product-120.html
+clickAndWait title=Add to Cart
+navigate http://{host}/simple-product-150.html
+clickAndWait title=Add to Cart
+navigate http://{host}/configurable-product-30.html
+exec jQuery('select[name^="super_attribute"]').val(12);
+clickAndWait title=Add to Cart
+navigate http://{host}/checkout/
+setValue id=login-email user_2@example.com
+setValue id=login-password 123123q
+clickAndWait type=submit
+execAndWait jQuery('#shipping-method-buttons-container button[data-role="opc-continue"]').click();
+logData 1
+clickAndWait title=Place Order

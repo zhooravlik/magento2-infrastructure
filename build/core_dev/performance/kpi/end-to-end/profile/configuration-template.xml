@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config>
+    <profile>
+        <configs> <!-- Config variables and values for change -->
+            <config>
+                <path>system/full_page_cache/ttl</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>7200</value>
+            </config>
+            <config>
+                <path>system/full_page_cache/caching_application</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>2</value>
+            </config>
+            <config>
+                <path>system/full_page_cache/varnish/access_list</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>localhost</value>
+            </config>
+            <config>
+                <path>system/full_page_cache/varnish/backend_host</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>localhost</value>
+            </config>
+            <config>
+                <path>system/full_page_cache/varnish/backend_port</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>8080</value>
+            </config>
+            <config>
+                <path>dev/css/merge_css_files</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>%merge_css%</value>
+            </config>
+            <config>
+                <path>dev/css/minify_files</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>%minify_css%</value>
+            </config>
+            <config>
+                <path>dev/js/merge_files</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>%merge_js%</value>
+            </config>
+            <config>
+                <path>dev/js/minify_files</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>%minify_js%</value>
+            </config>
+            <config>
+                <path>dev/js/enable_js_bundling</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>%js_bundling%</value>
+            </config>
+            <config>
+                <path>dev/grid/async_indexing</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>%async_indexing%</value>
+            </config>
+            <config>
+                <path>sales_email/general/async_sending</path>
+                <scope>default</scope>
+                <scopeId>0</scopeId>
+                <value>%async_sending%</value>
+            </config>
+        </configs>
+    </profile>
+</config>

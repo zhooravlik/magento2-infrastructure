@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="API - Create product with extensible data objects" enabled="true">
+      <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="" elementType="HTTPArgument">
+            <boolProp name="HTTPArgument.always_encode">false</boolProp>
+            <stringProp name="Argument.value">{&#xd;
+    &quot;product&quot;: {&#xd;
+        &quot;sku&quot;: &quot;apsku-test-${index}&quot;,&#xd;
+        &quot;name&quot;: &quot;Product_${index}&quot;,&#xd;
+        &quot;visibility&quot;: &quot;4&quot;,&#xd;
+        &quot;type_id&quot;: &quot;simple&quot;,&#xd;
+        &quot;price&quot;: &quot;3.62&quot;,&#xd;
+        &quot;status&quot;: &quot;1&quot;,&#xd;
+        &quot;attribute_set_id&quot;: &quot;4&quot;,&#xd;
+        &quot;custom_attributes&quot;: [&#xd;
+            {&#xd;
+                &quot;attribute_code&quot;: &quot;cost&quot;,&#xd;
+                &quot;value&quot;: &quot;&quot;&#xd;
+            },&#xd;
+            {&#xd;
+                &quot;attribute_code&quot;: &quot;description&quot;,&#xd;
+                &quot;value&quot;: &quot;Description&quot;&#xd;
+            }&#xd;
+        ],&#xd;
+        &quot;extension_attributes&quot;:{&#xd;
+		&quot;stock_item&quot;:{&#xd;
+		&quot;manage_stock&quot;: true,    &#xd;
+		&quot;is_in_stock&quot;: true,&#xd;
+		&quot;qty&quot;:&quot;100&quot;&#xd;
+		}&#xd;
+    	   }        ,&#xd;
+    	   &quot;media_gallery_entries&quot;:&#xd;
+    	   	[{&#xd;
+    	   		&quot;id&quot;: null,&#xd;
+    	   		&quot;label&quot;: &quot;test_label&quot;,&#xd;
+    	   		&quot;position&quot;:1,&#xd;
+    	   		&quot;disabled&quot;:false,&#xd;
+    	   		&quot;types&quot;:[&quot;image&quot;],&#xd;
+    	   		&quot;content&quot;:{&#xd;
+    	   			&quot;base64_encoded_data&quot;: &quot;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&quot;,&#xd;
+        &quot;type&quot;: &quot;image/jpeg&quot;,&#xd;
+        &quot;name&quot;: &quot;test_image.jpeg&quot;&#xd;
+    	   			}&#xd;
+    	   		    &#xd;
+    	   	}&#xd;
+    	   	]&#xd;
+    	    &#xd;
+    	   &#xd;
+    }&#xd;
+}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}rest/default/V1/products</stringProp>
+      <stringProp name="HTTPSampler.method">POST</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.JSONPathExtractor guiclass="com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.gui.JSONPathExtractorGui" testclass="com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.JSONPathExtractor" testname="Extract product id" enabled="true">
+        <stringProp name="VAR">simple_product_id</stringProp>
+        <stringProp name="JSONPATH">$.id</stringProp>
+        <stringProp name="DEFAULT"></stringProp>
+        <stringProp name="VARIABLE"></stringProp>
+        <stringProp name="SUBJECT">BODY</stringProp>
+      </com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.JSONPathExtractor>
+      <hashTree/>
+      <com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.JSONPathExtractor guiclass="com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.gui.JSONPathExtractorGui" testclass="com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.JSONPathExtractor" testname="Extract product sku" enabled="true">
+        <stringProp name="VAR">simple_product_sku</stringProp>
+        <stringProp name="JSONPATH">$.sku</stringProp>
+        <stringProp name="DEFAULT"></stringProp>
+        <stringProp name="VARIABLE"></stringProp>
+        <stringProp name="SUBJECT">BODY</stringProp>
+      </com.atlantbh.jmeter.plugins.jsonutils.jsonpathextractor.JSONPathExtractor>
+      <hashTree/>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert product id not null" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="89649215">^\d+$</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">1</intProp>
+        <stringProp name="Assertion.scope">variable</stringProp>
+        <stringProp name="Scope.variable">simple_product_id</stringProp>
+      </ResponseAssertion>
+      <hashTree/>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert product sku not null" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="484395188">^[a-z0-9-]+$</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">1</intProp>
+        <stringProp name="Assertion.scope">variable</stringProp>
+        <stringProp name="Scope.variable">simple_product_sku</stringProp>
+      </ResponseAssertion>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

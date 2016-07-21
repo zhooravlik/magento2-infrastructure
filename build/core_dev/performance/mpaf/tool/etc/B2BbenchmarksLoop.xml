@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scenario name="B2BbenchmarksLoop" title="B2BbenchmarksLoop">
+    <import name="http_request_default" />
+    <import name="http_header_manager" />
+    <import name="http_cookie_manager" />
+    <import name="setup">
+        <import name="admin_login/assert_logged_in" reference="SetUp - Login Submit Form" before="-"/>
+        <import name="customer_checkout/ajax_load_login_form" after="SetUp - BeanShell Sampler: Validate properties and count users" />
+    </import>
+    <import name="admin_task" title="Admin Task" />
+    <import name="category_product_browsing_by_guest_tmpl">
+        <import name="common/random_variable_1" />
+        <import name="common/random_variable_2" />
+        <import name="common/random_variable_3" />
+        <import name="category_product_browsing/get_arguments" />
+        <import name="common/open_home_page" />
+        <import name="common/customer_all_section_load" />
+        <import name="common/open_category" />
+        <import name="common/simple_product_view_1" />
+        <import name="common/simple_product_view_2" />
+        <import name="common/configurable_product_view_1" />
+    </import>
+    <import name="tear_down" />
+    <import name="view_results_tree" />
+</scenario>

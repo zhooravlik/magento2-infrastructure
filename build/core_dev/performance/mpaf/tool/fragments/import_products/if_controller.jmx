@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
+      <stringProp name="TestPlan.comments">If there are two import files.</stringProp>
+      <stringProp name="IfController.condition">&quot;${adminImportProductFilePath-2}&quot; != &quot;&quot;</stringProp>
+      <boolProp name="IfController.evaluateAll">false</boolProp>
+    </IfController>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>

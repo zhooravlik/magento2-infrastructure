@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Checkout start${__property(activeAdminThread)}(${testLabel})" enabled="true">
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}checkout/</stringProp>
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="-1403911775">&lt;title&gt;Checkout&lt;/title&gt;</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">2</intProp>
+      </ResponseAssertion>
+      <hashTree/>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="-179817969">&lt;title&gt;Shopping Cart&lt;/title&gt;</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">6</intProp>
+      </ResponseAssertion>
+      <hashTree/>
+      <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract Cart Id" enabled="true">
+        <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+        <stringProp name="RegexExtractor.refname">cart_id</stringProp>
+        <stringProp name="RegexExtractor.regex">&quot;quoteData&quot;:{&quot;entity_id&quot;:&quot;([^&apos;&quot;]+)&quot;,</stringProp>
+        <stringProp name="RegexExtractor.template">$1$</stringProp>
+        <stringProp name="RegexExtractor.default"></stringProp>
+        <stringProp name="RegexExtractor.match_number">1</stringProp>
+      </RegexExtractor>
+      <hashTree/>
+      <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract form key" enabled="true">
+        <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+        <stringProp name="RegexExtractor.refname">form_key</stringProp>
+        <stringProp name="RegexExtractor.regex">&lt;input name=&quot;form_key&quot; type=&quot;hidden&quot; value=&quot;([^&apos;&quot;]+)&quot; /&gt;</stringProp>
+        <stringProp name="RegexExtractor.template">$1$</stringProp>
+        <stringProp name="RegexExtractor.default"></stringProp>
+        <stringProp name="RegexExtractor.match_number">1</stringProp>
+      </RegexExtractor>
+      <hashTree/>
+      <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract Address Id" enabled="true">
+        <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+        <stringProp name="RegexExtractor.refname">address_id</stringProp>
+        <stringProp name="RegexExtractor.regex">&quot;default_billing&quot;:&quot;([^&apos;&quot;]+)&quot;,</stringProp>
+        <stringProp name="RegexExtractor.template">$1$</stringProp>
+        <stringProp name="RegexExtractor.default"></stringProp>
+        <stringProp name="RegexExtractor.match_number">1</stringProp>
+      </RegexExtractor>
+      <hashTree/>
+      <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract Customer Id" enabled="true">
+        <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+        <stringProp name="RegexExtractor.refname">customer_id</stringProp>
+        <stringProp name="RegexExtractor.regex">&quot;customer_id&quot;:([^&apos;&quot;,]+),</stringProp>
+        <stringProp name="RegexExtractor.template">$1$</stringProp>
+        <stringProp name="RegexExtractor.default"></stringProp>
+        <stringProp name="RegexExtractor.match_number">1</stringProp>
+      </RegexExtractor>
+      <hashTree/>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Cart Id extracted" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="2845929">^.+$</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">1</intProp>
+        <stringProp name="Assertion.scope">variable</stringProp>
+        <stringProp name="Scope.variable">cart_id</stringProp>
+      </ResponseAssertion>
+      <hashTree/>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert form_key extracted" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="2845929">^.+$</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">1</intProp>
+        <stringProp name="Assertion.scope">variable</stringProp>
+        <stringProp name="Scope.variable">form_key</stringProp>
+      </ResponseAssertion>
+      <hashTree/>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Address Id extracted" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="576002869">[0-9]+$</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">1</intProp>
+        <stringProp name="Assertion.scope">variable</stringProp>
+        <stringProp name="Scope.variable">address_id</stringProp>
+      </ResponseAssertion>
+      <hashTree/>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Customer Id extracted" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="576002869">[0-9]+$</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">1</intProp>
+        <stringProp name="Assertion.scope">variable</stringProp>
+        <stringProp name="Scope.variable">customer_id</stringProp>
+      </ResponseAssertion>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

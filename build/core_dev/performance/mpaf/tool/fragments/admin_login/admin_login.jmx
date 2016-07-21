@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="SetUp - Login" enabled="true">
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="HTTPSampler.domain"></stringProp>
+      <stringProp name="HTTPSampler.port"></stringProp>
+      <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+      <stringProp name="HTTPSampler.response_timeout"></stringProp>
+      <stringProp name="HTTPSampler.protocol"></stringProp>
+      <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+      <stringProp name="HTTPSampler.path">${base_path}${admin_path}</stringProp>
+      <stringProp name="HTTPSampler.method">GET</stringProp>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <boolProp name="HTTPSampler.monitor">false</boolProp>
+      <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+    </HTTPSamplerProxy>
+    <hashTree>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert login form shown" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="-1397214398">Welcome</stringProp>
+          <stringProp name="-515240035">&lt;title&gt;Magento Admin&lt;/title&gt;</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">2</intProp>
+      </ResponseAssertion>
+      <hashTree/>
+      <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract form key" enabled="true">
+        <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+        <stringProp name="RegexExtractor.refname">admin_form_key</stringProp>
+        <stringProp name="RegexExtractor.regex">&lt;input name=&quot;form_key&quot; type=&quot;hidden&quot; value=&quot;([^&apos;&quot;]+)&quot; /&gt;</stringProp>
+        <stringProp name="RegexExtractor.template">$1$</stringProp>
+        <stringProp name="RegexExtractor.default"></stringProp>
+        <stringProp name="RegexExtractor.match_number">1</stringProp>
+      </RegexExtractor>
+      <hashTree/>
+      <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert form_key extracted" enabled="true">
+        <collectionProp name="Asserion.test_strings">
+          <stringProp name="2845929">^.+$</stringProp>
+        </collectionProp>
+        <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+        <boolProp name="Assertion.assume_success">false</boolProp>
+        <intProp name="Assertion.test_type">1</intProp>
+        <stringProp name="Assertion.scope">variable</stringProp>
+        <stringProp name="Scope.variable">admin_form_key</stringProp>
+      </ResponseAssertion>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

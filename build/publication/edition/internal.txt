@@ -1,0 +1,8 @@
+# Files included in testing builds, but nor ready/approved for publication
+
+dev/tools/Magento/Tools/Composer
+dev/tests/static/testsuite/Magento/Test/Integrity/ComposerTest.php
+dev/tests/static/testsuite/Magento/Test/Integrity/App/Language/TranslationFilesNonEnglishTest.php
+dev/tests/static/testsuite/Magento/Test/Legacy/_files/words_internal.xml
+dev/tests/static/testsuite/Magento/Test/Php/_files/phpcpd/blacklist/non_public.txt
+dev/tests/static/testsuite/Magento/Test/Integrity/ComposerRequireTest.php
